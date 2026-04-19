@@ -84,13 +84,13 @@ const AREAS: DropdownItem[] = [
 const TECH: DropdownItem[] = [
   {
     label: "Inteligência Artificial",
-    href: "#inteligencia-artificial",
+    href: "/institucional-2#inteligencia-artificial",
     description: "IA jurídica treinada no direito brasileiro",
     icon: Cpu,
   },
   {
     label: "Compliance",
-    href: "#compliance",
+    href: "/institucional-2#compliance",
     description: "LGPD, segurança e auditoria",
     icon: FileCheck,
   },
@@ -114,7 +114,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
               <Mic size={13} strokeWidth={2.25} />
               Advogados que querem gravadores inteligentes
             </span>
-            <a href="#voice" className="i2-announce__cta">
+            <a href="/institucional-2#voice" className="i2-announce__cta">
               <span className="i2-hide-sm">Saiba mais</span>
               <span className="i2-show-sm">Acesse</span>
               <ArrowRight size={13} strokeWidth={2.25} />
@@ -137,7 +137,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
           </Link>
 
           <nav className="i2-navbar__links" aria-label="Navegação principal">
-            <a href="#chat" className="i2-navbar__link">
+            <a href="/institucional-2#chat" className="i2-navbar__link">
               Produto
             </a>
 
@@ -166,7 +166,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
             {/* Link de Preços — religar junto com SHOW_PRICING em page.tsx */}
             {/* <a href="#precos" className="i2-navbar__link">Preços</a> */}
 
-            <a href="#faq" className="i2-navbar__link">
+            <a href="/institucional-2#faq" className="i2-navbar__link">
               FAQ
             </a>
 

@@ -127,11 +127,11 @@ export function MobileToolbar() {
           <Home size={18} strokeWidth={2} />
           <span>Home</span>
         </Link>
-        <a href="#voice" className="i2-mtoolbar__item">
+        <a href="/institucional-2#voice" className="i2-mtoolbar__item">
           <Mic size={18} strokeWidth={2} />
           <span>Voice</span>
         </a>
-        <a href="#chat" className="i2-mtoolbar__item">
+        <a href="/institucional-2#chat" className="i2-mtoolbar__item">
           <MessageSquare size={18} strokeWidth={2} />
           <span>Chat</span>
         </a>
