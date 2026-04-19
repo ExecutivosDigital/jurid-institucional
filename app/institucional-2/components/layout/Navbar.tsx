@@ -84,13 +84,13 @@ const AREAS: DropdownItem[] = [
 const TECH: DropdownItem[] = [
   {
     label: "Inteligência Artificial",
-    href: "/institucional-2#inteligencia-artificial",
+    href: "/institucional-2/inteligencia-artificial",
     description: "IA jurídica treinada no direito brasileiro",
     icon: Cpu,
   },
   {
     label: "Compliance",
-    href: "/institucional-2#compliance",
+    href: "/institucional-2/compliance",
     description: "LGPD, segurança e auditoria",
     icon: FileCheck,
   },
@@ -149,7 +149,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
               <div className="i2-navbar__dropdown i2-navbar__dropdown--sm" role="menu">
                 <div className="i2-navbar__dropdown-inner">
                   {TECH.map(({ label, href, description, icon: Icon }) => (
-                    <a key={href} href={href} className="i2-navbar__dropdown-item" role="menuitem">
+                    <Link key={href} href={href} className="i2-navbar__dropdown-item" role="menuitem">
                       <span className="i2-navbar__dropdown-icon">
                         <Icon size={16} strokeWidth={2} />
                       </span>
@@ -157,7 +157,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
                         <span className="i2-navbar__dropdown-label">{label}</span>
                         <span className="i2-navbar__dropdown-desc">{description}</span>
                       </span>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -166,9 +166,9 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
             {/* Link de Preços — religar junto com SHOW_PRICING em page.tsx */}
             {/* <a href="#precos" className="i2-navbar__link">Preços</a> */}
 
-            <a href="/institucional-2#faq" className="i2-navbar__link">
+            <Link href="/institucional-2/faq" className="i2-navbar__link">
               FAQ
-            </a>
+            </Link>
 
             <div className="i2-navbar__item">
               <button type="button" className="i2-navbar__link i2-navbar__link--trigger">

@@ -1,5 +1,11 @@
+"use client";
+
 import { ArrowRight, MessageCircle } from "lucide-react";
 import Link from "next/link";
+import { track } from "lib/analytics";
+
+const WHATSAPP_HREF =
+  "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Estou+no+site+da+Jurid+IA+e+gostaria+de+conhecer+mais+sobre+os+servi%C3%A7os.&type=phone_number&app_absent=0";
 
 export function VideoShowcase() {
   return (
@@ -45,10 +51,21 @@ export function VideoShowcase() {
               Teste grátis
               <ArrowRight size={18} strokeWidth={2} />
             </Link>
-            <Link href="#contato" className="i2-btn i2-btn--ghost">
+            <a
+              href={WHATSAPP_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="i2-btn i2-btn--ghost"
+              onClick={() =>
+                track("Lead", {
+                  source: "video_showcase_whatsapp",
+                  content_name: "whatsapp_video_showcase",
+                })
+              }
+            >
               <MessageCircle size={16} strokeWidth={2} />
               Fale conosco
-            </Link>
+            </a>
           </div>
         </div>
       </div>
