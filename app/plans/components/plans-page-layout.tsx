@@ -1,0 +1,212 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { cn } from "lib/utils";
+import { ChevronLeft, Loader2 } from "lucide-react";
+import Image from "next/image";
+import type { ViewState } from "./types";
+
+interface PlansPageLayoutProps {
+  viewState: ViewState;
+  onBack: () => void;
+  children: React.ReactNode;
+  submitLoading?: boolean;
+}
+
+export function PlansPageLayout({
+  viewState,
+  onBack,
+  children,
+  submitLoading = false,
+}: PlansPageLayoutProps) {
+  const isCheckout = viewState === "checkout";
+  const isSuccess = viewState === "success";
+
+  return (
+    <div className="min-h-screen w-full bg-primary-100">
+      <div className="relative flex min-h-screen w-full flex-col bg-n-1 lg:flex-row dark:bg-n-6">
+        {/* ═══ Background patterns ═══ */}
+        <div className="pointer-events-none absolute inset-0 z-[5]">
+          <motion.div
+            animate={{ y: [0, -30, 0], x: [0, 15, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-[15%] left-[45%] h-[500px] w-[500px] rounded-full opacity-[0.04]"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(171,142,99,0.25) 0%, transparent 70%)",
+            }}
+          />
+          <motion.div
+            animate={{ y: [0, 20, 0], x: [0, -20, 0] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-[10%] left-[42%] h-[600px] w-[600px] rounded-full opacity-[0.03]"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(18,29,46,0.45) 0%, transparent 70%)",
+            }}
+          />
+          <motion.div
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+            className="absolute top-[30%] left-[47%] h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/[0.06]"
+          />
+        </div>
+
+        {/* ═══ LEFT — painel marca (secondary + primary-100) ═══ */}
+        <motion.div
+          animate={{
+            width: isSuccess ? "0%" : isCheckout ? "45%" : "33.333%",
+          }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative hidden h-screen shrink-0 flex-col overflow-hidden lg:sticky lg:top-0 lg:flex"
+        >
+          {/* Video background */}
+          <video
+            src="/plans-video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          {/* Dark + blur overlay */}
+          <div className="absolute inset-0 z-[1]" />
+
+          {/* Header */}
+          <div
+            className={cn(
+              "absolute z-90 flex w-full shrink-0 items-center justify-between px-6 py-4 sm:px-8",
+              isSuccess && "hidden",
+            )}
+          >
+            <button
+              onClick={onBack}
+              className="flex items-center z-50 gap-2 rounded-md border dark:border-white/20 border-secondary-1/20 bg-secondary-1 hover:bg-secondary-2  p-6 px-4 py-2 text-sm font-medium text-white shadow-sm backdrop-blur-xl transition hover:shadow-md"
+            >
+              <ChevronLeft className="h-4 w-4" /> Voltar
+            </button>
+            <div className="flex items-center justify-center">
+              <Image
+                src="/images/logo/logo-white.png"
+                alt="Jurid-IA"
+                width={200}
+                height={60}
+                className="h-12 w-auto object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Left panel patterns */}
+          <div className="pointer-events-none absolute inset-0 z-[3]">
+            <div
+              className="absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.8) 1px, transparent 0)",
+                backgroundSize: "32px 32px",
+              }}
+            />
+            <motion.div
+              animate={{ x: [0, 40, 0], y: [0, -30, 0], scale: [1, 1.2, 1] }}
+              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-20 -left-20 h-[28rem] w-[28rem] rounded-full bg-secondary-1/25 blur-[100px]"
+            />
+            <motion.div
+              animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.3, 1] }}
+              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -right-16 bottom-[20%] h-[24rem] w-[24rem] rounded-full bg-primary-100/35 blur-[100px]"
+            />
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+              className="absolute top-[10%] right-[10%] h-48 w-48"
+            >
+              <div className="h-full w-full rounded-full border border-white/[0.08]" />
+              <div className="absolute inset-4 rounded-full border border-dashed border-white/[0.06]" />
+            </motion.div>
+            <motion.div
+              animate={{ y: ["-100%", "200%"] }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "linear",
+                repeatDelay: 4,
+              }}
+              className="absolute left-0 h-px w-full bg-gradient-to-r from-transparent via-white/[0.10] to-transparent"
+            />
+          </div>
+        </motion.div>
+
+        {/* ═══ RIGHT — Content panel ═══ */}
+        <div className="relative flex min-h-screen flex-1 flex-col bg-n-2 dark:bg-n-6">
+          {/* Right panel patterns */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `
+                    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(171,142,99,0.06) 0%, transparent 60%),
+                    radial-gradient(ellipse 60% 60% at 80% 80%, rgba(18,29,46,0.04) 0%, transparent 50%)
+                  `,
+                }}
+              />
+            </div>
+            <motion.div
+              animate={{ x: ["-5%", "5%", "-5%"], y: ["-3%", "3%", "-3%"] }}
+              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-[10%] -left-[5%] h-[60%] w-[120%]"
+              style={{
+                background:
+                  "linear-gradient(135deg, transparent 25%, rgba(171,142,99,0.05) 38%, rgba(171,142,99,0.01) 50%, transparent 60%)",
+                filter: "blur(35px)",
+              }}
+            />
+          </div>
+
+          {/* Mobile header */}
+          <div className="relative z-10 flex items-center justify-between border-b border-n-3 bg-n-1 px-5 py-4 dark:border-n-8 dark:bg-n-6 lg:hidden">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-1.5 text-sm font-medium text-n-4 transition hover:text-secondary-1 dark:text-n-3"
+            >
+              <ChevronLeft className="h-4 w-4" /> Voltar
+            </button>
+            <Image
+              src="/images/logo/logo.png"
+              alt="Jurid-IA"
+              width={140}
+              height={40}
+              className="h-8 w-auto object-contain"
+            />
+            <div className="w-16" />
+          </div>
+
+          {/* Scrollable content */}
+          <div className="relative z-10 flex flex-col">
+            <div
+              className={cn(
+                "mx-auto flex w-full flex-1 flex-col px-6 sm:px-8",
+                isCheckout ? "max-w-2xl pb-40" : "max-w-6xl min-h-screen",
+              )}
+            >
+              {children}
+            </div>
+          </div>
+        </div>
+
+        {/* Loading overlay */}
+        {submitLoading && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-n-1/60 backdrop-blur-sm dark:bg-n-6/60">
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-n-3 bg-n-1 p-8 shadow-2xl dark:border-n-5 dark:bg-n-8">
+              <Loader2 className="h-8 w-8 animate-spin text-secondary-1" />
+              <p className="text-sm font-semibold text-n-6 dark:text-n-1">
+                Processando pagamento...
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
