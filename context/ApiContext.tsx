@@ -60,7 +60,7 @@ export const ApiContextProvider = ({ children }: ProviderProps) => {
         clearToken();
         setToken("");
         if (typeof window !== "undefined") {
-          window.location.href = "https://app.juridia.com.br/sign-in";
+          window.location.href = "https://app.juridia.com.br/sign-in?register";
         }
       }
       return Promise.reject(error);

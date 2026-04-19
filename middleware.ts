@@ -99,7 +99,7 @@ export async function middleware(req: NextRequest) {
     : cookieStore.get(tokenCookieName)?.value;
 
   // 3.2. Não Logado: Redirecionar para /sign-in
-  if (!token) return NextResponse.redirect(new URL("/sign-in", req.url));
+  if (!token) return NextResponse.redirect("https://app.juridia.com.br/sign-in?register");
 
   // 3.3. Rotas que ignoram validação de assinatura (checkout, planos, cursos)
   // Fluxo futuro (contas novas → home/cursos): incluir req.nextUrl.pathname === "/" ||
@@ -138,7 +138,7 @@ export async function middleware(req: NextRequest) {
   // A. Falha de Login (inclui falha na rota /checkout)
   // Se o token principal falhou (e não temos isSignature no body, ou status != 200)
   if (connect.status !== 200 && !connect.body?.isSignature) {
-    return NextResponse.redirect(new URL("/sign-in", req.url));
+    return NextResponse.redirect("https://app.juridia.com.br/sign-in?register");
   }
 
   // B. Falha de Assinatura (Status diferente de 200 na validação de assinatura)

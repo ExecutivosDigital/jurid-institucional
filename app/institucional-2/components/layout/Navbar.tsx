@@ -195,7 +195,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
 
           <div className="i2-navbar__actions">
             <a
-              href="https://app.juridia.com.br/sign-in"
+              href="https://app.juridia.com.br/sign-in?register"
               target="_blank"
               rel="noopener noreferrer"
               className="i2-navbar__login"

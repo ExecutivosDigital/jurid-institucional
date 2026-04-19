@@ -318,7 +318,7 @@ export function RegisterComplete() {
             <p className="i2-auth__signin">
               Já tem conta?{" "}
               <a
-                href="https://app.juridia.com.br/sign-in"
+                href="https://app.juridia.com.br/sign-in?register"
                 target="_blank"
                 rel="noopener noreferrer"
               >
