@@ -194,8 +194,10 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
           </nav>
 
           <div className="i2-navbar__actions">
-            <Link
-              href="/sign-in"
+            <a
+              href="https://app.juridia.com.br/sign-in"
+              target="_blank"
+              rel="noopener noreferrer"
               className="i2-navbar__login"
               onClick={() =>
                 track("PageView", {
@@ -206,7 +208,7 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
             >
               Entrar
               <LogIn size={14} strokeWidth={2.25} />
-            </Link>
+            </a>
             <Link href="/contratar" className="i2-navbar__cta">
               <span className="i2-hide-sm">Contratar agora</span>
               <span className="i2-show-sm">Contratar</span>

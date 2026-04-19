@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Check,
   Sparkles,
@@ -30,6 +29,8 @@ type Tier = {
 
 const WHATSAPP_HREF =
   "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Gostaria+de+falar+com+um+humano+sobre+a+JuridIA.&type=phone_number&app_absent=0";
+
+const REGISTER_HREF = "https://app.juridia.com.br/sign-in?register";
 
 const TIERS: Tier[] = [
   {
@@ -207,8 +208,10 @@ export function PricingContratar() {
                     {tier.cta}
                   </a>
                 ) : (
-                  <Link
-                    href={`/register-complete?plan=${tier.key}`}
+                  <a
+                    href={REGISTER_HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className={`i2-pricing__cta${
                       isFeatured
                         ? " i2-pricing__cta--primary"
@@ -216,7 +219,7 @@ export function PricingContratar() {
                     }`}
                   >
                     {tier.cta}
-                  </Link>
+                  </a>
                 )}
               </div>
             );

@@ -2,17 +2,27 @@
 
 import { track } from "lib/analytics";
 
-const WHATSAPP_HREF =
-  "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Gostaria+de+falar+com+um+humano+sobre+a+JuridIA.&type=phone_number&app_absent=0";
+const WHATSAPP_PHONE = "5541984080011";
+
+const DEFAULT_WHATSAPP_MESSAGE =
+  "Olá! Gostaria de falar com um humano sobre a JuridIA.";
+
+const WHATSAPP_HREF = `https://api.whatsapp.com/send/?phone=${WHATSAPP_PHONE}&text=${encodeURIComponent(DEFAULT_WHATSAPP_MESSAGE)}&type=phone_number&app_absent=0`;
+
+function whatsAppHref(message: string) {
+  return `https://api.whatsapp.com/send/?phone=${WHATSAPP_PHONE}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
+}
 
 type Props = {
   label?: string;
+  message?: string;
 };
 
 export function WhatsAppFloat({
   label = "Falar com humano agora",
+  message,
 }: Props = {}) {
-  const href = WHATSAPP_HREF;
+  const href = message != null ? whatsAppHref(message) : WHATSAPP_HREF;
 
   return (
     <a

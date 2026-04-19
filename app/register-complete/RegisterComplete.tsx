@@ -17,7 +17,14 @@ import {
   Sparkles,
   User as UserIcon,
 } from "lucide-react";
+import { useApiContext } from "context/ApiContext";
+import {
+  buildLawyerRegisterBody,
+  getLawyerRegisterErrorMessage,
+} from "lib/lawyer-register";
+import { getTokenCookieName, getTokenCookieOptions } from "lib/auth-cookies";
 import { maskPhone } from "lib/masks";
+import { useCookies } from "next-client-cookies";
 import { PLANS, type PlanKey } from "../contratar/plans";
 
 function isValidPlan(value: string | null): value is PlanKey {
@@ -25,6 +32,8 @@ function isValidPlan(value: string | null): value is PlanKey {
 }
 
 export function RegisterComplete() {
+  const { PostAPI } = useApiContext();
+  const cookies = useCookies();
   const router = useRouter();
   const params = useSearchParams();
   const planParam = params.get("plan");
@@ -47,8 +56,8 @@ export function RegisterComplete() {
   function validate(): string | null {
     if (name.trim().length < 2) return "Informe seu nome completo.";
     if (!/^\S+@\S+\.\S+$/.test(email)) return "Email inválido.";
-    if (phone.replace(/\D/g, "").length < 10)
-      return "Telefone inválido — inclua DDD.";
+    if (phone.replace(/\D/g, "").length < 11)
+      return "Telefone inválido — inclua DDD e o número completo (11 dígitos).";
     if (password.length < 6)
       return "Senha precisa ter pelo menos 6 caracteres.";
     if (password !== confirm) return "As senhas não coincidem.";
@@ -64,10 +73,32 @@ export function RegisterComplete() {
     }
     setError(null);
     setSubmitting(true);
-    // TODO: integrar com /lawyer/register quando a API estiver pronta.
-    // Por enquanto apenas leva o usuário para o checkout fake.
-    await new Promise((r) => setTimeout(r, 600));
-    router.push(`/checkout-v2?plan=${plan.key}`);
+    const phoneDigits = phone.replace(/\D/g, "");
+    const res = await PostAPI(
+      "/lawyer/register",
+      buildLawyerRegisterBody({
+        name,
+        email,
+        phoneDigits,
+        password,
+        trial: false,
+      }),
+      false
+    );
+    setSubmitting(false);
+    if (res.status === 200) {
+      const token = res.body?.accessToken;
+      if (typeof token === "string" && token.length > 0) {
+        cookies.set(
+          getTokenCookieName(),
+          token,
+          getTokenCookieOptions(true)
+        );
+      }
+      router.push(`/checkout-v2?plan=${plan.key}`);
+      return;
+    }
+    setError(getLawyerRegisterErrorMessage(res.body));
   }
 
   return (
@@ -286,7 +317,13 @@ export function RegisterComplete() {
 
             <p className="i2-auth__signin">
               Já tem conta?{" "}
-              <Link href="/sign-in">Entre aqui</Link>
+              <a
+                href="https://app.juridia.com.br/sign-in"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Entre aqui
+              </a>
             </p>
           </form>
         </div>

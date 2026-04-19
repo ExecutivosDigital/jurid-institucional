@@ -1,8 +1,15 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { useApiContext } from "context/ApiContext";
 import { track } from "lib/analytics";
+import {
+  buildLawyerRegisterBody,
+  getLawyerRegisterErrorMessage,
+  redirectToAppWithToken,
+} from "lib/lawyer-register";
 
 type Step = 1 | 2;
 
@@ -46,13 +53,15 @@ function maskDocument(value: string) {
 }
 
 export function TrialForm() {
+  const { PostAPI } = useApiContext();
   const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState<FormData>(INITIAL_DATA);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const step1Valid =
     data.name.trim().length >= 3 &&
-    data.phone.replace(/\D/g, "").length >= 10 &&
+    data.phone.replace(/\D/g, "").length >= 11 &&
     /\S+@\S+\.\S+/.test(data.email);
 
   const step2Valid =
@@ -64,14 +73,40 @@ export function TrialForm() {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!step2Valid) return;
-    setSubmitted(true);
-    track("Lead", {
-      source: "trial_form",
-      content_name: "trial_signup_completed",
-    });
+    if (!step2Valid || submitting) return;
+    setSubmitting(true);
+    const phoneDigits = data.phone.replace(/\D/g, "");
+    const res = await PostAPI(
+      "/lawyer/register",
+      buildLawyerRegisterBody({
+        name: data.name,
+        email: data.email,
+        phoneDigits,
+        password: data.password,
+        trial: true,
+      }),
+      false
+    );
+    setSubmitting(false);
+    if (res.status === 200 && res.body?.accessToken) {
+      track("Lead", {
+        source: "trial_form",
+        content_name: "trial_signup_completed",
+      });
+      redirectToAppWithToken(res.body.accessToken as string);
+      return;
+    }
+    if (res.status === 200) {
+      track("Lead", {
+        source: "trial_form",
+        content_name: "trial_signup_completed",
+      });
+      setSubmitted(true);
+      return;
+    }
+    toast.error(getLawyerRegisterErrorMessage(res.body));
   }
 
   return (
@@ -240,10 +275,16 @@ export function TrialForm() {
                     <button
                       type="submit"
                       className="i2-trial__btn i2-trial__btn--primary"
-                      disabled={!step2Valid}
+                      disabled={!step2Valid || submitting}
                     >
-                      Começar teste grátis
-                      <ArrowRight size={18} strokeWidth={2} />
+                      {submitting ? (
+                        <Loader2 size={18} strokeWidth={2} className="i2-auth__spin" />
+                      ) : (
+                        <>
+                          Começar teste grátis
+                          <ArrowRight size={18} strokeWidth={2} />
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
