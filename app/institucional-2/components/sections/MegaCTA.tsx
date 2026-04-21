@@ -1,5 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowRight, Scale, Sparkles, Check } from "lucide-react";
+import { ArrowRight, MessageCircle, Scale, Sparkles, Check } from "lucide-react";
+import { track } from "lib/analytics";
+
+const WHATSAPP_HREF =
+  "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Estou+no+site+da+Jurid+IA+e+gostaria+de+conhecer+mais+sobre+os+servi%C3%A7os.&type=phone_number&app_absent=0";
 
 const BENEFITS = [
   "Sem cartão de crédito",
@@ -134,10 +140,22 @@ export function MegaCTA() {
                   <span className="i2-show-sm">Começar agora</span>
                   <ArrowRight size={18} strokeWidth={2} />
                 </Link>
-                <Link href="#contato" className="i2-megacta__btn-ghost">
+                <a
+                  href={WHATSAPP_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="i2-megacta__btn-ghost"
+                  onClick={() =>
+                    track("Lead", {
+                      source: "megacta_whatsapp",
+                      content_name: "whatsapp_megacta_especialista",
+                    })
+                  }
+                >
+                  <MessageCircle size={16} strokeWidth={2.25} />
                   <span className="i2-hide-sm">Falar com Especialista</span>
                   <span className="i2-show-sm">Falar conosco</span>
-                </Link>
+                </a>
               </div>
 
               <hr className="i2-megacta__divider" />

@@ -38,11 +38,11 @@ const TIERS: Tier[] = [
     name: "Individual",
     tagline: "Para o advogado autônomo começar agora",
     icon: User,
-    originalPrice: "129,90",
-    promoPrice: "99,99",
+    originalPrice: "117,00",
+    promoPrice: "117,00",
     priceSuffix: "/mês",
-    promoBadge: "Oferta de lançamento",
-    promoNote: "Nos primeiros 12 meses · depois R$ 129,90/mês",
+    promoBadge: "Plano mensal",
+    promoNote: "Cobrado mensalmente · cancele quando quiser",
     cta: "Começar agora",
     features: [
       "1 usuário",
@@ -57,11 +57,11 @@ const TIERS: Tier[] = [
     name: "Escritório",
     tagline: "Para equipes que querem escalar a rotina jurídica",
     icon: Building2,
-    originalPrice: "199,90",
-    promoPrice: "149,99",
+    originalPrice: "147,00",
+    promoPrice: "147,00",
     priceSuffix: "/mês",
-    promoBadge: "Oferta de lançamento",
-    promoNote: "Nos primeiros 12 meses · depois R$ 199,90/mês",
+    promoBadge: "Plano mensal",
+    promoNote: "Cobrado mensalmente · cancele quando quiser",
     featured: true,
     cta: "Começar agora",
     features: [
@@ -110,7 +110,7 @@ export function PricingContratar() {
             </span>
           </h2>
           <p className="i2-pricing__subtitle">
-            Oferta de lançamento: preços promocionais garantidos por 12 meses.
+            Escolha o plano que melhor se encaixa na sua rotina.
             Cancele quando quiser.
           </p>
         </div>
@@ -144,7 +144,7 @@ export function PricingContratar() {
                   </div>
                 </div>
 
-                {!tier.isEnterprise && (
+                {!tier.isEnterprise && tier.originalPrice !== tier.promoPrice && (
                   <>
                     <div className="i2-pricing__promo-badge">
                       <Sparkles size={11} strokeWidth={2.5} />

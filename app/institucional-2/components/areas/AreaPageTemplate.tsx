@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image, { type StaticImageData } from "next/image";
 import {
   ArrowRight,
   Check,
   MessageCircle,
-  Phone,
   Play,
   Plus,
   Minus,
@@ -19,8 +19,57 @@ import type { AreaContent, AreaSlug } from "../../lib/areas-content";
 import { AREA_SLUGS, AREAS_CONTENT } from "../../lib/areas-content";
 import { track } from "lib/analytics";
 
+import img18 from "../../imagens-videos/juridcerto/18.png";
+import img19 from "../../imagens-videos/juridcerto/19.png";
+import img20 from "../../imagens-videos/juridcerto/20.png";
+import img21 from "../../imagens-videos/juridcerto/21.png";
+import img22 from "../../imagens-videos/juridcerto/22.png";
+import img23 from "../../imagens-videos/juridcerto/23.png";
+import img24 from "../../imagens-videos/juridcerto/24.png";
+import img25 from "../../imagens-videos/juridcerto/25.png";
+import img26 from "../../imagens-videos/juridcerto/26.png";
+import img27 from "../../imagens-videos/juridcerto/27.png";
+import img28 from "../../imagens-videos/juridcerto/28.png";
+import img29 from "../../imagens-videos/juridcerto/29.png";
+import img30 from "../../imagens-videos/juridcerto/30.png";
+import img31 from "../../imagens-videos/juridcerto/31.png";
+import img32 from "../../imagens-videos/juridcerto/32.png";
+import img33 from "../../imagens-videos/juridcerto/33.png";
+import img34 from "../../imagens-videos/juridcerto/34.png";
+
+const GALLERY_POOL: StaticImageData[] = [
+  img18,
+  img19,
+  img20,
+  img21,
+  img22,
+  img23,
+  img24,
+  img25,
+  img26,
+  img27,
+  img28,
+  img29,
+  img30,
+  img31,
+  img32,
+  img33,
+  img34,
+];
+
+function getGalleryImage(slug: string, index: number): StaticImageData {
+  let hash = 0;
+  for (let i = 0; i < slug.length; i += 1) {
+    hash = (hash * 31 + slug.charCodeAt(i)) >>> 0;
+  }
+  const offset = (hash + index) % GALLERY_POOL.length;
+  return GALLERY_POOL[offset];
+}
+
 const WHATSAPP_HREF =
   "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Gostaria+de+falar+com+um+humano+sobre+a+JuridIA.&type=phone_number&app_absent=0";
+
+const VOICE_HREF = "https://voice.juridia.com.br/register";
 
 type Props = {
   slug: AreaSlug;
@@ -296,11 +345,23 @@ function VoiceSection({ area }: { area: AreaContent }) {
                 );
               })}
             </ul>
-            <Link href="/plans" className="i2-btn i2-btn--primary">
+            <a
+              href={VOICE_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="i2-btn i2-btn--primary"
+              onClick={() =>
+                track("Lead", {
+                  source: "area_voice_cta",
+                  content_name: `voice_register_${area.slug}`,
+                  area: area.slug,
+                })
+              }
+            >
               <span className="i2-hide-sm">{area.voice.ctaLabel}</span>
               <span className="i2-show-sm">Testar agora</span>
               <ArrowRight size={18} strokeWidth={2} />
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -507,13 +568,15 @@ function GallerySection({ area }: { area: AreaContent }) {
                 i === 0 ? "i2-area-gallery__item--feature" : ""
               }`}
             >
-              <div className="i2-area-gallery__placeholder" aria-hidden>
-                <span className="i2-area-gallery__placeholder-label">
-                  {img.label}
-                </span>
-                <span className="i2-area-gallery__placeholder-sub">
-                  imagem em breve
-                </span>
+              <div className="i2-area-gallery__media">
+                <Image
+                  src={getGalleryImage(area.slug, i)}
+                  alt={`${img.label} — ${img.caption}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  style={{ objectFit: "cover" }}
+                  placeholder="blur"
+                />
               </div>
               <figcaption className="i2-area-gallery__caption">
                 {img.caption}
@@ -537,6 +600,7 @@ function GallerySection({ area }: { area: AreaContent }) {
    FAQ
    ============================================================ */
 function FAQSection({ area }: { area: AreaContent }) {
+  const [openIndex, setOpenIndex] = useState<number>(0);
   return (
     <section className="i2-area-faq">
       <div className="i2-container">
@@ -549,7 +613,12 @@ function FAQSection({ area }: { area: AreaContent }) {
 
         <div className="i2-area-faq__list">
           {area.faq.items.map((item, i) => (
-            <FAQItem key={item.question} item={item} defaultOpen={i === 0} />
+            <FAQItem
+              key={item.question}
+              item={item}
+              open={openIndex === i}
+              onToggle={() => setOpenIndex((prev) => (prev === i ? -1 : i))}
+            />
           ))}
         </div>
 
@@ -577,19 +646,20 @@ function FAQSection({ area }: { area: AreaContent }) {
 
 function FAQItem({
   item,
-  defaultOpen = false,
+  open,
+  onToggle,
 }: {
   item: { question: string; answer: string };
-  defaultOpen?: boolean;
+  open: boolean;
+  onToggle: () => void;
 }) {
-  const [open, setOpen] = useState(defaultOpen);
   return (
     <div className={`i2-area-faq__item ${open ? "is-open" : ""}`}>
       <button
         type="button"
         className="i2-area-faq__q"
         aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
+        onClick={onToggle}
       >
         <span>{item.question}</span>
         {open ? <Minus size={16} /> : <Plus size={16} />}
@@ -684,10 +754,6 @@ function AreaMegaCTA({
               <MessageCircle size={16} strokeWidth={2.25} />
               <span className="i2-hide-sm">{area.whatsapp.buttonLabel}</span>
               <span className="i2-show-sm">Falar com especialista</span>
-            </a>
-            <a href="tel:+5511999999999" className="i2-area-megacta__phone">
-              <Phone size={14} strokeWidth={2.25} />
-              (11) 99999-9999
             </a>
           </div>
         </div>

@@ -1,8 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Instagram, Youtube } from "lucide-react";
 
-const INSTAGRAM_URL = "#";
-const YOUTUBE_URL = "#";
+const INSTAGRAM_URL = "https://www.instagram.com/juridia.adv";
+const YOUTUBE_URL = "https://www.youtube.com/channel/UC-JgHKB6TpGb7C_l9QC-_8A";
 
 export function Footer() {
   return (
@@ -44,12 +45,12 @@ export function Footer() {
         </div>
 
         <nav className="i2-footer__links" aria-label="Links rodapé">
-          <a href="#privacidade" className="i2-footer__link">
+          <Link href="/institucional-2/privacidade" className="i2-footer__link">
             Privacidade
-          </a>
-          <a href="#termos" className="i2-footer__link">
+          </Link>
+          <Link href="/institucional-2/termos" className="i2-footer__link">
             Termos
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>
