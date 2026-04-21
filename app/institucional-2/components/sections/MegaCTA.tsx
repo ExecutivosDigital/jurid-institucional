@@ -135,7 +135,7 @@ export function MegaCTA() {
               </p>
 
               <div className="i2-megacta__buttons">
-                <Link href="/plans" className="i2-megacta__btn-primary">
+                <Link href="#experimente" className="i2-megacta__btn-primary">
                   <span className="i2-hide-sm">Começar Gratuitamente</span>
                   <span className="i2-show-sm">Começar agora</span>
                   <ArrowRight size={18} strokeWidth={2} />

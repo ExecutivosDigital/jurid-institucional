@@ -46,7 +46,7 @@ export function HeroSection() {
           </p>
 
           <div className="i2-hero__ctas">
-            <Link href="/plans" className="i2-btn i2-btn--primary">
+            <Link href="#experimente" className="i2-btn i2-btn--primary">
               <span className="i2-hide-sm">Começar teste grátis</span>
               <span className="i2-show-sm">Testar agora</span>
               <ArrowRight size={18} strokeWidth={2} />

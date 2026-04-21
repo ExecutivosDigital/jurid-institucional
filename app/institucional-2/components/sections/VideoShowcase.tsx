@@ -47,7 +47,7 @@ export function VideoShowcase() {
             demonstração personalizada para o seu escritório.
           </p>
           <div className="i2-video__ctas">
-            <Link href="/plans" className="i2-btn i2-btn--primary">
+            <Link href="#experimente" className="i2-btn i2-btn--primary">
               Teste grátis
               <ArrowRight size={18} strokeWidth={2} />
             </Link>
