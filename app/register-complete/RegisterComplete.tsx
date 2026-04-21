@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -21,10 +21,9 @@ import { useApiContext } from "context/ApiContext";
 import {
   buildLawyerRegisterBody,
   getLawyerRegisterErrorMessage,
+  redirectToAppWithToken,
 } from "lib/lawyer-register";
-import { getTokenCookieName, getTokenCookieOptions } from "lib/auth-cookies";
 import { maskPhone } from "lib/masks";
-import { useCookies } from "next-client-cookies";
 import { PLANS, type PlanKey } from "../contratar/plans";
 
 function isValidPlan(value: string | null): value is PlanKey {
@@ -33,8 +32,6 @@ function isValidPlan(value: string | null): value is PlanKey {
 
 export function RegisterComplete() {
   const { PostAPI } = useApiContext();
-  const cookies = useCookies();
-  const router = useRouter();
   const params = useSearchParams();
   const planParam = params.get("plan");
   const plan = useMemo(
@@ -85,19 +82,11 @@ export function RegisterComplete() {
       }),
       false
     );
-    setSubmitting(false);
-    if (res.status === 200) {
-      const token = res.body?.accessToken;
-      if (typeof token === "string" && token.length > 0) {
-        cookies.set(
-          getTokenCookieName(),
-          token,
-          getTokenCookieOptions(true)
-        );
-      }
-      router.push(`/checkout-v2?plan=${plan.key}`);
+    if (res.status === 200 && res.body?.accessToken) {
+      redirectToAppWithToken(res.body.accessToken as string);
       return;
     }
+    setSubmitting(false);
     setError(getLawyerRegisterErrorMessage(res.body));
   }
 
