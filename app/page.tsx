@@ -49,7 +49,7 @@ export default function HomePage() {
           subtitle="Converse com uma IA jurídica que entende o direito brasileiro como ninguém. Peça uma petição inicial, faça uma pesquisa de jurisprudência, tire dúvidas sobre súmulas — tudo em linguagem natural. Treinada com legislação, doutrina e milhões de julgados dos tribunais nacionais para responder com fundamento e contexto real."
           videoLabel="Demo · Chat em ação"
           videoBigLetter="CHAT"
-          ctaHref="/plans"
+          ctaHref="/#experimente"
           ctaLabel="Testar agora"
           videoSrc="/videos/juridia-demo-chat.mp4"
         />
@@ -61,7 +61,7 @@ export default function HomePage() {
           subtitle="Grave audiências, reuniões com clientes e sustentações orais. A IA transcreve em tempo real, identifica os pontos jurídicos relevantes e gera atas, resumos executivos e memorandos prontos para o processo. É como o Plaud e o tl;dv — só que afinado para a rotina dos escritórios brasileiros."
           videoLabel="Demo · Voice em ação"
           videoBigLetter="VOICE"
-          ctaHref="/plans"
+          ctaHref="https://voice.juridia.com.br/register"
           ctaLabel="Testar agora"
           reverse
           videoSrc="/videos/juridia-demo-voice.mp4"
