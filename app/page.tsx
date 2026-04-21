@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
-import "./institucional-2/institucional-2.css";
-import { Navbar } from "./institucional-2/components/layout/Navbar";
 import { Footer } from "./institucional-2/components/layout/Footer";
 import { MobileToolbar } from "./institucional-2/components/layout/MobileToolbar";
+import { Navbar } from "./institucional-2/components/layout/Navbar";
 import { HeroSection } from "./institucional-2/components/sections/HeroSection";
-import { VideoShowcase } from "./institucional-2/components/sections/VideoShowcase";
+import { MegaCTA } from "./institucional-2/components/sections/MegaCTA";
 import { NumbersSection } from "./institucional-2/components/sections/NumbersSection";
+import { PricingSection } from "./institucional-2/components/sections/PricingSection";
 import { ProductShowcase } from "./institucional-2/components/sections/ProductShowcase";
 import { StoriesGallery } from "./institucional-2/components/sections/StoriesGallery";
-import { PricingSection } from "./institucional-2/components/sections/PricingSection";
-import { MegaCTA } from "./institucional-2/components/sections/MegaCTA";
+import { VideoShowcase } from "./institucional-2/components/sections/VideoShowcase";
 import { WhatsAppFloat } from "./institucional-2/components/ui/WhatsAppFloat";
+import "./institucional-2/institucional-2.css";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -31,7 +31,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
 const SHOW_PRICING = false;
 
 export default function HomePage() {
