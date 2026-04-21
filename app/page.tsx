@@ -32,7 +32,6 @@ export const metadata: Metadata = {
   },
 };
 const SHOW_PRICING = false;
-
 export default function HomePage() {
   return (
     <div className={`institucional-2 ${jakarta.variable}`}>
