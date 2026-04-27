@@ -1,3 +1,5 @@
+export type PlanLevel = "SOLO" | "PRO" | "ENTERPRISE";
+
 export interface PlanProps {
   id: string;
   name: string;
@@ -5,6 +7,7 @@ export interface PlanProps {
   creditCardPrice: number; // Assumindo que sua API retorna isso
   yearlyDiscount: number;
   description?: string;
+  level?: PlanLevel | null;
 }
 
 export interface ProfileProps {

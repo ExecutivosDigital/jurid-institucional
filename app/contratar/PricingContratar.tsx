@@ -1,13 +1,17 @@
 "use client";
 
+import { useApiContext } from "context/ApiContext";
 import {
+  Building2,
   Check,
+  Crown,
+  Loader2,
   Sparkles,
   User,
-  Building2,
-  Crown,
   type LucideIcon,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { PlanLevel, PlanProps } from "types/global";
 
 type TierKey = "individual" | "escritorio" | "enterprise";
 
@@ -25,12 +29,19 @@ type Tier = {
   features: string[];
   cta: string;
   isEnterprise?: boolean;
+  backendPlanLevel?: PlanLevel;
 };
 
 const WHATSAPP_HREF =
   "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Gostaria+de+falar+com+um+humano+sobre+a+JuridIA.&type=phone_number&app_absent=0";
 
-const REGISTER_HREF = "https://app.juridia.com.br/sign-in?register";
+const APP_BASE_URL =
+  process.env.NEXT_PUBLIC_JURIDIA_APP_URL || "https://app.juridia.com.br";
+
+function buildRegisterHref(planId: string): string {
+  const next = `/plans?plan=${planId}&yearly=false&checkout=1`;
+  return `${APP_BASE_URL}/sign-in?register&next=${encodeURIComponent(next)}`;
+}
 
 const TIERS: Tier[] = [
   {
@@ -44,6 +55,7 @@ const TIERS: Tier[] = [
     promoBadge: "Plano mensal",
     promoNote: "Cobrado mensalmente · cancele quando quiser",
     cta: "Começar agora",
+    backendPlanLevel: "SOLO",
     features: [
       "1 usuário",
       "Chat ilimitado com IA",
@@ -64,6 +76,7 @@ const TIERS: Tier[] = [
     promoNote: "Cobrado mensalmente · cancele quando quiser",
     featured: true,
     cta: "Começar agora",
+    backendPlanLevel: "PRO",
     features: [
       "Até 5 advogados",
       "Tudo do Individual +",
@@ -95,6 +108,34 @@ const TIERS: Tier[] = [
 ];
 
 export function PricingContratar() {
+  const { GetAPI } = useApiContext();
+  const [plans, setPlans] = useState<PlanProps[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await GetAPI("/signature-plan", false);
+        if (!cancelled && res.status === 200 && Array.isArray(res.body)) {
+          setPlans(res.body as PlanProps[]);
+        }
+      } finally {
+        if (!cancelled) setLoadingPlans(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [GetAPI]);
+
+  const resolveHref = (tier: Tier): string | null => {
+    if (!tier.backendPlanLevel) return null;
+    const match = plans.find((p) => p.level === tier.backendPlanLevel);
+    if (!match) return null;
+    return buildRegisterHref(match.id);
+  };
+
   return (
     <section className="i2-pricing i2-pricing--page" id="precos">
       <div className="i2-container">
@@ -110,8 +151,8 @@ export function PricingContratar() {
             </span>
           </h2>
           <p className="i2-pricing__subtitle">
-            Escolha o plano que melhor se encaixa na sua rotina.
-            Cancele quando quiser.
+            Escolha o plano que melhor se encaixa na sua rotina. Cancele quando
+            quiser.
           </p>
         </div>
 
@@ -144,21 +185,22 @@ export function PricingContratar() {
                   </div>
                 </div>
 
-                {!tier.isEnterprise && tier.originalPrice !== tier.promoPrice && (
-                  <>
-                    <div className="i2-pricing__promo-badge">
-                      <Sparkles size={11} strokeWidth={2.5} />
-                      {tier.promoBadge}
-                    </div>
+                {!tier.isEnterprise &&
+                  tier.originalPrice !== tier.promoPrice && (
+                    <>
+                      <div className="i2-pricing__promo-badge">
+                        <Sparkles size={11} strokeWidth={2.5} />
+                        {tier.promoBadge}
+                      </div>
 
-                    <div className="i2-pricing__price-old">
-                      <span className="i2-pricing__price-old-label">De</span>
-                      <span className="i2-pricing__price-old-value">
-                        R$ {tier.originalPrice}
-                      </span>
-                    </div>
-                  </>
-                )}
+                      <div className="i2-pricing__price-old">
+                        <span className="i2-pricing__price-old-label">De</span>
+                        <span className="i2-pricing__price-old-value">
+                          R$ {tier.originalPrice}
+                        </span>
+                      </div>
+                    </>
+                  )}
 
                 <div className="i2-pricing__price">
                   {tier.isEnterprise ? (
@@ -207,20 +249,45 @@ export function PricingContratar() {
                   >
                     {tier.cta}
                   </a>
-                ) : (
-                  <a
-                    href={REGISTER_HREF}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`i2-pricing__cta${
-                      isFeatured
-                        ? " i2-pricing__cta--primary"
-                        : " i2-pricing__cta--ghost"
-                    }`}
-                  >
-                    {tier.cta}
-                  </a>
-                )}
+                ) : (() => {
+                  const href = resolveHref(tier);
+                  const ctaClass = `i2-pricing__cta${
+                    isFeatured
+                      ? " i2-pricing__cta--primary"
+                      : " i2-pricing__cta--ghost"
+                  }`;
+                  if (!href) {
+                    return (
+                      <button
+                        type="button"
+                        disabled
+                        aria-busy={loadingPlans}
+                        className={ctaClass}
+                        style={{ opacity: 0.65, cursor: "not-allowed" }}
+                      >
+                        {loadingPlans ? (
+                          <Loader2
+                            size={16}
+                            className="animate-spin"
+                            style={{ display: "inline-block" }}
+                          />
+                        ) : (
+                          "Indisponível"
+                        )}
+                      </button>
+                    );
+                  }
+                  return (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={ctaClass}
+                    >
+                      {tier.cta}
+                    </a>
+                  );
+                })()}
               </div>
             );
           })}
