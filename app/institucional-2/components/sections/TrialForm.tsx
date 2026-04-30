@@ -90,19 +90,31 @@ export function TrialForm() {
       false
     );
     setSubmitting(false);
+    const [firstName, ...lastParts] = data.name.trim().split(/\s+/);
+    const lastName = lastParts.join(" ") || undefined;
+    const leadOptions = {
+      userData: {
+        email: data.email,
+        phone: data.phone,
+        firstName,
+        lastName,
+      },
+    };
     if (res.status === 200 && res.body?.accessToken) {
-      track("Lead", {
-        source: "trial_form",
-        content_name: "trial_signup_completed",
-      });
+      track(
+        "Lead",
+        { source: "trial_form", content_name: "trial_signup_completed" },
+        leadOptions,
+      );
       redirectToAppWithToken(res.body.accessToken as string);
       return;
     }
     if (res.status === 200) {
-      track("Lead", {
-        source: "trial_form",
-        content_name: "trial_signup_completed",
-      });
+      track(
+        "Lead",
+        { source: "trial_form", content_name: "trial_signup_completed" },
+        leadOptions,
+      );
       setSubmitted(true);
       return;
     }

@@ -8,9 +8,11 @@ export function AnalyticsProviders() {
   return (
     <>
       {metaPixelId && (
-        <Script id="meta-pixel" strategy="lazyOnload">
+        <Script id="meta-pixel" strategy="afterInteractive">
           {`!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${metaPixelId}');`}
+fbq('init', '${metaPixelId}');
+fbq('track', 'PageView');
+(function(){var p=new URLSearchParams(window.location.search);var fbclid=p.get('fbclid');if(!fbclid)return;var fbc='fb.1.'+Date.now()+'.'+fbclid;document.cookie='_fbc='+fbc+'; path=/; max-age='+(90*24*60*60)+'; SameSite=Lax';})();`}
         </Script>
       )}
 
