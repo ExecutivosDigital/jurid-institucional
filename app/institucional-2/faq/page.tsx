@@ -88,7 +88,7 @@ const CATEGORIES: FAQCategory[] = [
     items: [
       {
         q: "Quanto custa?",
-        a: "Plano Individual a R$ 117/mês, Plano Escritório (até 5 advogados) a R$ 147/mês e Plano Enterprise sob consulta para escritórios maiores. Cancele quando quiser.",
+        a: "Plano Individual a R$ 169,90/mês, Plano Escritório (até 5 advogados) a R$ 199,90/mês e Plano Enterprise sob consulta para escritórios maiores. Cancele quando quiser.",
       },
       {
         q: "Tem teste grátis?",
