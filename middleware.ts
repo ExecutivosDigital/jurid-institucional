@@ -9,6 +9,7 @@ export const config = {
   matcher: ["/thanks", "/courses", "/checkout/:id"],
 };
 
+
 const loginVerifyAPI = async ({
   token,
   ignoreSignatureValidation = false,
