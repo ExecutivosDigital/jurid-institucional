@@ -26,6 +26,24 @@ const config: Config = {
     // },
     extend: {
       colors: {
+        /* Paleta do /checkout — PORTADA da LP da VSL (tema claro, padrão
+           Hotmart com a marca JuridIA). Vive no prefixo ck para não colidir
+           com as cores do site. */
+        ck: {
+          gold: "#AB8E63",
+          "gold-dark": "#75644B",
+          "gold-light": "#DDA73F",
+          navy: "#121D2E",
+          "navy-900": "#0d1522",
+          ink: "#1a2233",
+          "ink-muted": "#5b667a",
+          surface: "#ffffff",
+          canvas: "#f6f8fc",
+          page: "#f0ede8",
+          line: "#e5e9f2",
+          "line-strong": "#c9cfdb",
+          success: "#1f9d55",
+        },
         primary: {
           1: "#0084FF",
           2: "#3FDD78",
@@ -77,6 +95,10 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-karla)"],
         inter: "var(--font-inter)",
+        /* Tipografia do /checkout portado da VSL — mesma dupla Inter/Karla,
+           que o layout já carrega via next/font. */
+        display: ["var(--font-inter)", "system-ui", "sans-serif"],
+        body: ["var(--font-karla)", "system-ui", "sans-serif"],
       },
       fontSize: {
         0: ["0px", "0px"],

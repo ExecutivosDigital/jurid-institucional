@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { track } from "lib/analytics";
 import { HUB_PLAN_CODES } from "lib/hub-checkout";
 import {
@@ -50,7 +49,7 @@ const PLANS: PricingPlan[] = [
       "Biblioteca jurídica completa",
       "Upload de documentos",
     ],
-    checkoutHref: `/plans?plan=${HUB_PLAN_CODES.individual}&checkout=1`,
+    checkoutHref: `/checkout?plano=${HUB_PLAN_CODES.individual}`,
   },
   {
     id: "escritorio",
@@ -66,7 +65,7 @@ const PLANS: PricingPlan[] = [
       "Análise avançada de documentos",
       "Suporte prioritário",
     ],
-    checkoutHref: `/plans?plan=${HUB_PLAN_CODES.escritorio}&checkout=1`,
+    checkoutHref: `/checkout?plano=${HUB_PLAN_CODES.escritorio}`,
   },
   {
     id: "enterprise",
@@ -167,7 +166,8 @@ export function PricingSection() {
                 </ul>
 
                 {plan.checkoutHref ? (
-                  <Link
+                  /* <a> comum: o destino é o checkout da VSL (outro domínio) */
+                  <a
                     href={plan.checkoutHref}
                     data-lp-cta={`pricing-${plan.id}`}
                     className={`i2-pricing__cta${
@@ -183,7 +183,7 @@ export function PricingSection() {
                     }
                   >
                     Assinar agora
-                  </Link>
+                  </a>
                 ) : (
                   <a
                     href={WHATSAPP_HREF}

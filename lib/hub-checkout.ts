@@ -20,7 +20,22 @@ export const HUB_PLAN_CODES = {
   individual: "inst-individual",
   escritorio: "inst-escritorio",
   trial: "inst-trial",
+  /** Oferta de TESTE (R$ 6) — só aparece em /plans?plano=<este código>. */
+  teste: "t6pix-9f4k2q81x",
 } as const;
+
+/**
+ * O institucional NÃO tem checkout próprio: quem compra é levado ao checkout
+ * da VSL (o mesmo motor, a mesma tela) já com o plano selecionado.
+ * `voltar=planos` acende lá o botão "Voltar aos planos" → /plans daqui.
+ */
+const VSL_CHECKOUT_URL = (
+  process.env.NEXT_PUBLIC_VSL_CHECKOUT_URL ?? "https://vsl.juridia.com.br/checkout"
+).replace(/\/$/, "");
+
+export function vslCheckoutHref(planCode: string): string {
+  return `${VSL_CHECKOUT_URL}?plano=${encodeURIComponent(planCode)}&voltar=planos`;
+}
 
 export type HubCheckoutResult = {
   checkoutId: string;

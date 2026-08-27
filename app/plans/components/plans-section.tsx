@@ -43,13 +43,22 @@ interface PlanStaticData {
   badge?: string;
 }
 
-const PLAN_STATIC_DATA: PlanStaticData[] = [
-  {
+/**
+ * Metadados visuais POR ID de plano (não por índice): a lista de planos varia
+ * — a oferta de teste de R$ 6 só entra com o código obscuro na URL — e casar
+ * por posição mandaria o card errado para o WhatsApp.
+ */
+const ACENTO = {
+  accentColor: "text-secondary-1",
+  accentBg: "bg-amber-50 dark:bg-n-8",
+  accentBorder: "border-secondary-1/40 dark:border-secondary-1/30",
+};
+
+const PLAN_STATIC_BY_ID: Record<string, PlanStaticData> = {
+  "inst-individual": {
+    ...ACENTO,
     subtitle: "Para o advogado autônomo começar agora",
     displayName: "Individual",
-    accentColor: "text-secondary-1",
-    accentBg: "bg-amber-50 dark:bg-n-8",
-    accentBorder: "border-secondary-1/40 dark:border-secondary-1/30",
     features: [
       { text: "1 advogado com acesso total", included: true, highlight: true },
       { text: "1 acesso de IA", included: true },
@@ -57,12 +66,10 @@ const PLAN_STATIC_DATA: PlanStaticData[] = [
       { text: "Atualizações gratuitas", included: true },
     ],
   },
-  {
+  "inst-escritorio": {
+    ...ACENTO,
     subtitle: "Para equipes que querem escalar",
     displayName: "Escritório",
-    accentColor: "text-secondary-1",
-    accentBg: "bg-amber-50 dark:bg-n-8",
-    accentBorder: "border-secondary-1/40 dark:border-secondary-1/30",
     highlight: true,
     tag: "Mais Popular",
     features: [
@@ -72,12 +79,21 @@ const PLAN_STATIC_DATA: PlanStaticData[] = [
       { text: "Atualizações gratuitas", included: true },
     ],
   },
-  {
+  "t6pix-9f4k2q81x": {
+    ...ACENTO,
+    subtitle: "Oferta interna — validação do fluxo",
+    displayName: "Teste (R$ 6)",
+    features: [
+      { text: "Compra real de ponta a ponta", included: true, highlight: true },
+      { text: "Pix Automático ou cartão", included: true },
+      { text: "Acesso entregue por e-mail", included: true },
+      { text: "Só aparece com o código na URL", included: true },
+    ],
+  },
+  enterprise: {
+    ...ACENTO,
     subtitle: "Grandes demandas",
     displayName: "Enterprise",
-    accentColor: "text-secondary-1",
-    accentBg: "bg-amber-50 dark:bg-n-8",
-    accentBorder: "border-secondary-1/40 dark:border-secondary-1/30",
     features: [
       {
         text: "Demandas atendidas sob medida",
@@ -89,7 +105,13 @@ const PLAN_STATIC_DATA: PlanStaticData[] = [
       { text: "Consultoria dedicada", included: true },
     ],
   },
-];
+};
+
+const PLAN_STATIC_FALLBACK: PlanStaticData = {
+  ...ACENTO,
+  subtitle: "",
+  features: [],
+};
 
 const COMPARISON_ROWS: { feature: string; values: (string | boolean)[] }[] = [
   {
@@ -139,8 +161,11 @@ export function PlansSection({
   onPlanSelect,
   onContinue,
 }: PlansSectionProps) {
-  const displayPlans = plans.slice(0, 3);
-  const isEnterpriseSelected = !!selectedPlan && displayPlans[2]?.id === selectedPlan;
+  const displayPlans = plans;
+  const isEnterpriseSelected = selectedPlan === "enterprise";
+  /* A tabela comparativa foi desenhada para as 3 colunas fixas — com o card
+     de teste (4 planos) ela sai de cena em vez de mentir por posição. */
+  const mostrarComparacao = displayPlans.length === 3;
 
   return (
     <>
@@ -177,10 +202,10 @@ export function PlansSection({
               const isSelected = selectedPlan === plan.id;
               const price = getPlanCreditPrice(plan, billingCycle);
               const pixPrice = getPlanPixPrice(plan, billingCycle);
-              const staticData = PLAN_STATIC_DATA[i] ?? PLAN_STATIC_DATA[0];
+              const staticData = PLAN_STATIC_BY_ID[plan.id] ?? PLAN_STATIC_FALLBACK;
               const isHighlight = staticData.highlight ?? false;
 
-              const isEnterprise = i >= 2;
+              const isEnterprise = plan.id === "enterprise";
 
               return (
                 <motion.button
@@ -227,9 +252,13 @@ export function PlansSection({
                           : staticData.accentBg + " " + staticData.accentColor,
                       )}
                     >
-                      {i === 0 && <Zap className="h-6 w-6" />}
-                      {i === 1 && <Sparkles className="h-6 w-6" />}
-                      {i >= 2 && <Crown className="h-6 w-6" />}
+                      {isEnterprise ? (
+                        <Crown className="h-6 w-6" />
+                      ) : i === 0 ? (
+                        <Zap className="h-6 w-6" />
+                      ) : (
+                        <Sparkles className="h-6 w-6" />
+                      )}
                     </div>
                     {isEnterprise ? (
                       <span className="flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-[11px] font-bold text-green-700 dark:bg-green-900/30 dark:text-green-400">
@@ -437,6 +466,7 @@ export function PlansSection({
         )}
 
         {/* ─── Tabela comparativa (hidden no mobile) ─── */}
+        {mostrarComparacao && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -463,7 +493,7 @@ export function PlansSection({
                     Recurso
                   </th>
                   {displayPlans.map((plan, i) => {
-                    const sd = PLAN_STATIC_DATA[i] ?? PLAN_STATIC_DATA[0];
+                    const sd = PLAN_STATIC_BY_ID[plan.id] ?? PLAN_STATIC_FALLBACK;
                     const isSelected = selectedPlan === plan.id;
                     return (
                       <th key={plan.id} className="w-1/4 px-4 py-3 text-center">
@@ -541,7 +571,7 @@ export function PlansSection({
                       {row.feature}
                     </td>
                     {displayPlans.map((plan, i) => {
-                      const sd = PLAN_STATIC_DATA[i] ?? PLAN_STATIC_DATA[0];
+                      const sd = PLAN_STATIC_BY_ID[plan.id] ?? PLAN_STATIC_FALLBACK;
                       const isSelected = selectedPlan === plan.id;
                       const val = row.values[i];
                       return (
@@ -604,6 +634,7 @@ export function PlansSection({
             </table>
           </div>
         </motion.div>
+        )}
 
         {/* Spacer para o footer fixo */}
         <div className="h-28" />

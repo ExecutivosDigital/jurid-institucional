@@ -3,7 +3,10 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
-  matcher: ["/thanks", "/plans", "/courses", "/checkout/:id"],
+  // /plans saiu da proteção em 27/08/2026: virou página PÚBLICA de seleção de
+  // planos (a compra acontece no checkout da VSL, sem login — o acesso chega
+  // por e-mail). Exigir token aqui jogava o visitante para o sign-in do app.
+  matcher: ["/thanks", "/courses", "/checkout/:id"],
 };
 
 const loginVerifyAPI = async ({
@@ -87,6 +90,18 @@ export async function middleware(req: NextRequest) {
     req.nextUrl.pathname.indexOf("icon") > -1 ||
     req.nextUrl.pathname.indexOf("chrome") > -1 ||
     req.nextUrl.pathname.match(/\.(png|jpe?g|gif|svg|webp)$/)
+  )
+    return NextResponse.next();
+
+  // Rotas PÚBLICAS do fluxo novo (27/08/2026) — guarda no CORPO, além do
+  // matcher, porque o matcher não é hot-reloaded pelo `next dev`: a config
+  // velha continuou protegendo /plans e mandou visitante pro sign-in do app.
+  //   /plans    → redirect para /contratar (página de planos)
+  //   /checkout → checkout público portado da VSL (sem login; /checkout/:id
+  //               é o legado e segue protegido)
+  if (
+    req.nextUrl.pathname === "/plans" ||
+    req.nextUrl.pathname === "/checkout"
   )
     return NextResponse.next();
 
