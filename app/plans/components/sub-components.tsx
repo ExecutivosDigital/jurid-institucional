@@ -237,10 +237,13 @@ export function PixGeneratedView({
     >
       <div>
         <h2 className="text-2xl font-bold text-n-6 dark:text-n-1">
-          PIX gerado!
+          Pix Automático gerado!
         </h2>
         <p className="mt-1.5 text-sm text-n-4 dark:text-n-3">
-          Escaneie o QR Code ou copie o código para pagar
+          Escaneie o QR Code ou copie o código: no app do seu banco você
+          autoriza a assinatura mensal e paga a 1ª cobrança no mesmo ato — as
+          renovações caem sozinhas. Assim que o pagamento confirmar, seu login
+          e senha chegam por e-mail.
         </p>
       </div>
 

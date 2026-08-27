@@ -10,6 +10,8 @@ export type StandardEvent =
   | "Search"
   | "StartTrial"
   | "Subscribe"
+  | "InitiateCheckout"
+  | "AddPaymentInfo"
   | "Purchase";
 
 export type EventParams = Record<string, unknown>;
@@ -42,7 +44,37 @@ declare global {
     dataLayer?: unknown[];
     ttq?: { track: (event: string, params?: EventParams) => void };
     lintrk?: (action: string, params: EventParams) => void;
+    /** Tracking próprio do Hub (snippet j.js) — ver app/layout.tsx. */
+    jlp?: (event: string, props?: EventParams) => void;
   }
+}
+
+/**
+ * Espelha o evento no tracking PRÓPRIO do Hub (seção LPs do admin).
+ *
+ * A lista de nomes do Hub é FECHADA (ingest descarta o resto), então o evento
+ * padrão da Meta é traduzido para o nome que o Hub conhece — sem tradução,
+ * nada é enviado. Dados pessoais NUNCA vão por aqui (regra herdada da VSL):
+ * o Hub recebe só o nome do evento e rótulos.
+ */
+const JLP_EVENT: Partial<Record<StandardEvent, string>> = {
+  Lead: "cta_click",
+  InitiateCheckout: "checkout_view",
+  AddPaymentInfo: "checkout_submit",
+  StartTrial: "trial_submit",
+};
+
+function sendJlp(event: StandardEvent, params: EventParams) {
+  try {
+    const nome = JLP_EVENT[event];
+    if (!nome || !window.jlp) return;
+    // Só rótulos — nada de e-mail/telefone no tracking do Hub.
+    window.jlp(nome, {
+      ...(params.source ? { source: String(params.source) } : {}),
+      ...(params.content_name ? { label: String(params.content_name) } : {}),
+      ...(params.product ? { product: String(params.product) } : {}),
+    });
+  } catch {}
 }
 
 function sendCapi(
@@ -108,6 +140,8 @@ export function track(
   try {
     window.ttq?.track(event, params);
   } catch {}
+
+  sendJlp(event, params);
 }
 
 export function trackCustom(event: string, params: EventParams = {}) {

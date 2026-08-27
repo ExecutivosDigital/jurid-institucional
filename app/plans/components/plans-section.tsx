@@ -45,8 +45,8 @@ interface PlanStaticData {
 
 const PLAN_STATIC_DATA: PlanStaticData[] = [
   {
-    subtitle: "Para quem está começando",
-    displayName: "Advogado Solo",
+    subtitle: "Para o advogado autônomo começar agora",
+    displayName: "Individual",
     accentColor: "text-secondary-1",
     accentBg: "bg-amber-50 dark:bg-n-8",
     accentBorder: "border-secondary-1/40 dark:border-secondary-1/30",
@@ -58,8 +58,8 @@ const PLAN_STATIC_DATA: PlanStaticData[] = [
     ],
   },
   {
-    subtitle: "Escritório em crescimento",
-    displayName: "Pro",
+    subtitle: "Para equipes que querem escalar",
+    displayName: "Escritório",
     accentColor: "text-secondary-1",
     accentBg: "bg-amber-50 dark:bg-n-8",
     accentBorder: "border-secondary-1/40 dark:border-secondary-1/30",
@@ -163,34 +163,8 @@ export function PlansSection({
           </p>
         </div>
 
-        {/* Billing toggle */}
-        <div className="inline-flex rounded-full bg-n-1 p-1.5 shadow-sm ring-1 ring-n-3 dark:bg-n-8 dark:ring-n-5">
-          <button
-            onClick={() => onBillingCycleChange("MONTHLY")}
-            className={cn(
-              "rounded-full px-6 py-2.5 text-sm font-semibold transition-all",
-              billingCycle === "MONTHLY"
-                ? "bg-secondary-1 text-n-1 shadow-md shadow-secondary-1/30"
-                : "text-gray-500 hover:text-gray-700",
-            )}
-          >
-            Mensal
-          </button>
-          <button
-            onClick={() => onBillingCycleChange("YEARLY")}
-            className={cn(
-              "flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all",
-              billingCycle === "YEARLY"
-                ? "bg-secondary-1 text-n-1 shadow-md shadow-secondary-1/30"
-                : "text-gray-500 hover:text-gray-700",
-            )}
-          >
-            Anual
-            <span className="rounded-full bg-secondary-2 px-2 py-0.5 text-[10px] font-bold text-n-1">
-              -9.3%
-            </span>
-          </button>
-        </div>
+        {/* Cobrança mensal apenas — o checkout do Hub vende o ciclo mensal;
+            o toggle anual sai junto com o backend legado (27/08/2026). */}
 
         {/* Plan cards */}
         {loadingPlans ? (

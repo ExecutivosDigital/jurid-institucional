@@ -1,6 +1,5 @@
 "use client";
 
-import { useApiContext } from "context/ApiContext";
 import {
   Building2,
   Check,
@@ -10,8 +9,8 @@ import {
   User,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { PlanLevel, PlanProps } from "types/global";
+import { HUB_PLAN_CODES } from "lib/hub-checkout";
+import type { PlanLevel } from "types/global";
 
 type TierKey = "individual" | "escritorio" | "enterprise";
 
@@ -35,13 +34,16 @@ type Tier = {
 const WHATSAPP_HREF =
   "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Gostaria+de+falar+com+um+humano+sobre+a+JuridIA.&type=phone_number&app_absent=0";
 
-const APP_BASE_URL =
-  process.env.NEXT_PUBLIC_JURIDIA_APP_URL || "https://app.juridia.com.br";
-
-function buildRegisterHref(planId: string): string {
-  const next = `/plans?plan=${planId}&yearly=false&checkout=1`;
-  return `${APP_BASE_URL}/sign-in?register&next=${encodeURIComponent(next)}`;
-}
+/**
+ * O CTA agora leva direto ao checkout público do Hub (/plans local) — o MESMO
+ * motor da LP da VSL: sem exigir cadastro antes, o acesso chega por e-mail
+ * quando o pagamento confirma. O redirect legado para o app (sign-in?register)
+ * saiu em 27/08/2026 junto com o backend antigo.
+ */
+const CHECKOUT_HREF: Partial<Record<TierKey, string>> = {
+  individual: `/plans?plan=${HUB_PLAN_CODES.individual}&checkout=1`,
+  escritorio: `/plans?plan=${HUB_PLAN_CODES.escritorio}&checkout=1`,
+};
 
 const TIERS: Tier[] = [
   {
@@ -108,33 +110,10 @@ const TIERS: Tier[] = [
 ];
 
 export function PricingContratar() {
-  const { GetAPI } = useApiContext();
-  const [plans, setPlans] = useState<PlanProps[]>([]);
-  const [loadingPlans, setLoadingPlans] = useState(true);
+  const loadingPlans = false; // planos fixos — nada a buscar no backend
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await GetAPI("/signature-plan", false);
-        if (!cancelled && res.status === 200 && Array.isArray(res.body)) {
-          setPlans(res.body as PlanProps[]);
-        }
-      } finally {
-        if (!cancelled) setLoadingPlans(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [GetAPI]);
-
-  const resolveHref = (tier: Tier): string | null => {
-    if (!tier.backendPlanLevel) return null;
-    const match = plans.find((p) => p.level === tier.backendPlanLevel);
-    if (!match) return null;
-    return buildRegisterHref(match.id);
-  };
+  const resolveHref = (tier: Tier): string | null =>
+    CHECKOUT_HREF[tier.key] ?? null;
 
   return (
     <section className="i2-pricing i2-pricing--page" id="precos">

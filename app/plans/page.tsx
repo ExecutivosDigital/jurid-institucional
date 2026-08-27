@@ -1,48 +1,98 @@
 "use client";
 
-import { useApiContext } from "context/ApiContext";
+/**
+ * /plans — escolha de plano + checkout do INSTITUCIONAL, agora no MESMO motor
+ * da LP da VSL: o checkout público do Hub (jurid-hub-api).
+ *
+ * O que mudou em relação ao fluxo legado (27/08/2026):
+ *  · os planos são os da página /contratar (Individual R$ 169,90 e Escritório
+ *    R$ 199,90, mensais; Enterprise segue no WhatsApp) — fixos aqui, cobrados
+ *    pelo CATÁLOGO do Hub via apelido (`inst-individual` / `inst-escritorio`);
+ *  · o visitante NÃO precisa estar logado: a conta nasce no Hub na compra e o
+ *    acesso (login + senha) chega por E-MAIL quando o pagamento confirma;
+ *  · PIX é PIX AUTOMÁTICO: um QR só autoriza a recorrência e paga a 1ª
+ *    cobrança — a renovação passa a ser debitada sozinha;
+ *  · "pago" NUNCA sai do retorno do submit: é o polling do status (alimentado
+ *    pelo webhook do gateway) que confirma e leva para /thanks;
+ *  · cupom saiu — o checkout público do Hub não o suporta (quando entrar lá,
+ *    volta aqui).
+ */
+
 import { AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Suspense,
-  useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
 import toast from "react-hot-toast";
-import type { PlanProps, ProfileProps } from "types/global";
+import {
+  HUB_PLAN_CODES,
+  hubCheckoutStatus,
+  hubOfferDisponivel,
+  submitHubCheckout,
+} from "lib/hub-checkout";
+// registra o tipo global window.jlp (snippet j.js do Hub)
+import "lib/analytics";
 import { CheckoutFooter } from "./components/checkout-footer";
 import { CheckoutSection } from "./components/checkout-section";
 import { PlansPageLayout } from "./components/plans-page-layout";
 import { PlansSection } from "./components/plans-section";
-import type {
-  BillingCycle,
-  PaymentMethod,
-  Plan,
-  ViewState,
-} from "./components/types";
-import {
-  getPlanCreditPrice,
-  getPlanPixPrice,
-  mapPlanPropsToPlan,
-  onlyDigits,
-  parseExpiry,
-} from "./components/utils";
+import type { PaymentMethod, Plan, ViewState } from "./components/types";
+import { onlyDigits, parseExpiry } from "./components/utils";
+
+/**
+ * Vitrine — os valores REAIS vêm do catálogo do Hub na cobrança; divergir
+ * daqui seria mostrar um preço e cobrar outro. O 3º card é o Enterprise
+ * (sob consulta), que o PlansSection manda para o WhatsApp.
+ */
+const HUB_PLANS: Plan[] = [
+  {
+    id: HUB_PLAN_CODES.individual,
+    name: "Individual",
+    description: "Para o advogado autônomo começar agora",
+    pixMonthlyPrice: 169.9,
+    creditMonthlyPrice: 169.9,
+    pixPrice: 169.9,
+    yearlyDiscount: 0,
+  },
+  {
+    id: HUB_PLAN_CODES.escritorio,
+    name: "Escritório",
+    description: "Para equipes que querem escalar a rotina jurídica",
+    pixMonthlyPrice: 199.9,
+    creditMonthlyPrice: 199.9,
+    pixPrice: 199.9,
+    yearlyDiscount: 0,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    description: "Plano sob medida para grandes escritórios",
+    pixMonthlyPrice: 0,
+    creditMonthlyPrice: 0,
+    pixPrice: 0,
+    yearlyDiscount: 0,
+  },
+];
+
+/** Tracking do Hub (mesmos eventos do checkout da VSL) — nunca derruba a página. */
+function jlp(evento: string, props?: Record<string, unknown>) {
+  try {
+    window.jlp?.(evento, props);
+  } catch {}
+}
 
 function PlansPageInner() {
-  const { GetAPI, PostAPI } = useApiContext();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [viewState, setViewState] = useState<ViewState>("plans");
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [plansRaw, setPlansRaw] = useState<PlanProps[]>([]);
-  const [loadingPlans, setLoadingPlans] = useState(true);
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("YEARLY");
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [profile, setProfile] = useState<ProfileProps | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(
+    HUB_PLANS[1].id,
+  );
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("pix");
 
@@ -50,6 +100,9 @@ function PlansPageInner() {
   const [pixCopied, setPixCopied] = useState(false);
   const [pixPayload, setPixPayload] = useState<string>("");
   const [pixEncodedImage, setPixEncodedImage] = useState<string | null>(null);
+  /** Id devolvido pelo Hub — é ele que o polling consulta até virar PAID. */
+  const [checkoutId, setCheckoutId] = useState<string | null>(null);
+  const [paid, setPaid] = useState(false);
 
   const [cpf, setCpf] = useState("");
   const [cep, setCep] = useState("");
@@ -61,63 +114,12 @@ function PlansPageInner() {
   const [exp, setExp] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [coupon, setCoupon] = useState("");
 
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
-  const [discountPercent, setDiscountPercent] = useState(0);
 
   const urlSynced = useRef(false);
 
-  const fetchPlans = useCallback(async () => {
-    setLoadingPlans(true);
-    try {
-      const res = await GetAPI("/signature-plan", true);
-      if (res.status === 200 && Array.isArray(res.body)) {
-        const raw = res.body as PlanProps[];
-        setPlansRaw(raw);
-        setPlans(raw.map(mapPlanPropsToPlan));
-        if (raw.length > 0) {
-          setSelectedPlan(raw[Math.min(1, raw.length - 1)].id);
-        }
-      }
-    } catch {
-      console.error("Erro ao buscar planos");
-    } finally {
-      setLoadingPlans(false);
-    }
-  }, [GetAPI]);
-
-  const fetchProfile = useCallback(async () => {
-    try {
-      const res = await GetAPI("/lawyer/profile", true);
-      console.log("profile: ", res);
-      if (res.status === 200 && res.body) {
-        setProfile(res.body as ProfileProps);
-      }
-    } catch {
-      /* opcional */
-    }
-  }, [GetAPI]);
-
-  useEffect(() => {
-    fetchPlans();
-    fetchProfile();
-  }, [fetchPlans, fetchProfile]);
-
-  useEffect(() => {
-    if (profile) {
-      if (!cpf) setCpf(profile.paymentDoc ?? "");
-      if (!cep) setCep(profile.postalCode ?? "");
-      if (!address) setAddress(profile.address ?? "");
-      if (!house) setHouse(profile.number ?? "");
-      if (!holder) setHolder(profile.name ?? "");
-      if (!email) setEmail(profile.email ?? "");
-      if (!phone) setPhone(profile.phone ?? "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile]);
-
+  /* CEP → endereço (conveniência de exibição; a cobrança usa CEP + número) */
   useEffect(() => {
     const cleaned = onlyDigits(cep);
     if (cleaned.length === 8) {
@@ -145,14 +147,14 @@ function PlansPageInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cep]);
 
+  /* ?plan= da URL (vem dos CTAs de preço do site) */
   useEffect(() => {
     if (urlSynced.current) return;
     const planParam = searchParams.get("plan");
-    const yearlyParam = searchParams.get("yearly");
     const checkoutParam = searchParams.get("checkout");
-    if (planParam) setSelectedPlan(planParam);
-    if (yearlyParam === "true") setBillingCycle("YEARLY");
-    if (yearlyParam === "false") setBillingCycle("MONTHLY");
+    if (planParam && HUB_PLANS.some((p) => p.id === planParam)) {
+      setSelectedPlan(planParam);
+    }
     if (checkoutParam === "1") setViewState("checkout");
     urlSynced.current = true;
   }, [searchParams]);
@@ -161,98 +163,83 @@ function PlansPageInner() {
     if (!selectedPlan) return;
     const params = new URLSearchParams();
     params.set("plan", selectedPlan);
-    params.set("yearly", billingCycle === "YEARLY" ? "true" : "false");
     if (viewState === "checkout") params.set("checkout", "1");
     router.replace(`/plans?${params.toString()}`, { scroll: false });
-  }, [selectedPlan, billingCycle, viewState, router]);
+  }, [selectedPlan, viewState, router]);
 
-  const selectedPlanData = plans.find((p) => p.id === selectedPlan) ?? null;
+  /* Oferta fechada no Hub não pode virar erro na cara do cliente: se o plano
+     escolhido não está à venda, volta para a seleção com aviso. */
+  useEffect(() => {
+    if (!selectedPlan || selectedPlan === "enterprise") return;
+    let vivo = true;
+    hubOfferDisponivel(selectedPlan).then((ok) => {
+      if (!vivo || ok) return;
+      toast.error("Este plano não está disponível no momento.");
+      setViewState("plans");
+    });
+    return () => {
+      vivo = false;
+    };
+  }, [selectedPlan]);
 
-  const basePrice = selectedPlanData
-    ? paymentMethod === "card"
-      ? getPlanCreditPrice(selectedPlanData, billingCycle)
-      : getPlanPixPrice(selectedPlanData, billingCycle)
-    : 0;
+  /**
+   * Polling do pagamento — o ÚNICO caminho pelo qual a tela diz "pago". Vale
+   * para Pix e cartão: quem confirma é o webhook do gateway, via status do Hub.
+   */
+  useEffect(() => {
+    if (!checkoutId || paid) return;
+    let vivo = true;
+    const timer = setInterval(async () => {
+      const atual = await hubCheckoutStatus(checkoutId);
+      if (!vivo || atual?.status !== "PAID") return;
+      setPaid(true);
+      // o "pago" DE VERDADE — é este que vale como conversão no funil
+      jlp("checkout_result", { status: "PAID", confirmadoPeloPolling: true });
+      toast.success("Pagamento confirmado! Seu acesso chegou no seu e-mail.");
+      router.push("/thanks");
+    }, 4000);
+    return () => {
+      vivo = false;
+      clearInterval(timer);
+    };
+  }, [checkoutId, paid, router]);
 
-  const discountedPrice = basePrice * (1 - discountPercent / 100);
-  const isFree = discountPercent === 100;
-  const finalPrice = isFree
-    ? 0
-    : discountPercent > 0
-      ? discountedPrice
-      : basePrice;
+  const selectedPlanData =
+    HUB_PLANS.find((p) => p.id === selectedPlan) ?? null;
+
+  const basePrice = selectedPlanData?.pixMonthlyPrice ?? 0;
+  const finalPrice = basePrice;
 
   const canSubmit = useMemo(() => {
-    if (!selectedPlan) return false;
+    if (!selectedPlan || selectedPlan === "enterprise") return false;
     const cpfOk = onlyDigits(cpf).length >= 11;
     const holderOk = holder.trim().length >= 3;
     const emailOk = email.trim().length > 3 && email.includes("@");
     const phoneOk = onlyDigits(phone).length >= 10;
+
+    // PIX Automático não precisa de endereço — só os dados da pessoa.
+    if (paymentMethod === "pix") return cpfOk && holderOk && emailOk && phoneOk;
+
+    // Cartão: o gateway exige CEP e número no holderInfo.
     const cepOk = onlyDigits(cep).length >= 8;
-    const addressOk = address.trim().length > 0;
     const houseOk = house.trim().length > 0;
-    const addressSectionOk = cepOk && addressOk && houseOk;
-
-    if (isFree) return cpfOk && holderOk && emailOk && phoneOk;
-    if (paymentMethod === "pix")
-      return cpfOk && holderOk && emailOk && phoneOk && addressSectionOk;
-
     const cardOk = onlyDigits(cardNumber).length >= 12;
     const cvvOk = onlyDigits(cvv).length >= 3;
     const expOk = !!parseExpiry(exp);
     return (
-      cpfOk &&
-      holderOk &&
-      emailOk &&
-      phoneOk &&
-      addressSectionOk &&
-      cardOk &&
-      cvvOk &&
-      expOk
+      cpfOk && holderOk && emailOk && phoneOk && cepOk && houseOk && cardOk && cvvOk && expOk
     );
-  }, [
-    cpf,
-    holder,
-    email,
-    phone,
-    cep,
-    address,
-    house,
-    cardNumber,
-    cvv,
-    exp,
-    isFree,
-    selectedPlan,
-    paymentMethod,
-  ]);
+  }, [cpf, holder, email, phone, cep, house, cardNumber, cvv, exp, selectedPlan, paymentMethod]);
 
-  async function handleCheckCoupon() {
-    const code = coupon.trim().toUpperCase();
-    if (!code) return;
-    setIsValidatingCoupon(true);
-    try {
-      const resp = await GetAPI(`/partner/${code}`, true);
-      if (resp.status === 200 && resp.body?.discount != null) {
-        const discount = Number(resp.body.discount);
-        setDiscountPercent(discount);
-        toast.success(
-          discount === 100
-            ? "100% de desconto concedido!"
-            : `${discount}% de desconto concedido!`,
-        );
-      } else {
-        setDiscountPercent(0);
-        toast.error(String(resp.body?.message || "Cupom inválido."));
-      }
-    } catch {
-      setDiscountPercent(0);
-      toast.error("Erro ao validar cupom.");
-    } finally {
-      setIsValidatingCoupon(false);
+  /* Funil do checkout na seção LPs do admin — mesmos nomes da VSL. */
+  useEffect(() => {
+    if (viewState === "checkout" && selectedPlan) {
+      jlp("checkout_view", { plan: selectedPlan });
     }
-  }
+  }, [viewState, selectedPlan]);
 
   function handleChangePaymentMethod(m: PaymentMethod) {
+    jlp("payment_method_selected", { method: m });
     setPaymentMethod(m);
     setPixGenerated(false);
     setPixCopied(false);
@@ -264,6 +251,8 @@ function PlansPageInner() {
     if (!pixPayload) return;
     try {
       await navigator.clipboard.writeText(pixPayload);
+      // copiar o código é a intenção de pagar mais forte antes do pagamento
+      jlp("pix_copied", { plan: selectedPlan ?? undefined });
       setPixCopied(true);
       toast.success("Código PIX copiado!");
       setTimeout(() => setPixCopied(false), 3000);
@@ -273,113 +262,80 @@ function PlansPageInner() {
   }
 
   async function onSubmit() {
-    if (!canSubmit || !selectedPlan) {
+    if (!canSubmit || !selectedPlan || !selectedPlanData) {
       toast.error(
-        paymentMethod === "pix" || isFree
-          ? "Verifique seus dados pessoais e endereço."
-          : "Verifique os dados do cartão e endereço.",
+        paymentMethod === "pix"
+          ? "Verifique seus dados pessoais."
+          : "Verifique seus dados e os do cartão.",
       );
       return;
     }
 
-    const raw = plansRaw.find((p) => p.id === selectedPlan);
-    if (!raw) {
-      toast.error("Plano inválido.");
-      return;
-    }
-
     setSubmitLoading(true);
+    jlp("checkout_submit", { plan: selectedPlan, method: paymentMethod });
     try {
-      console.log("entrou");
-      if (isFree) {
-        const res = await PostAPI(
-          `/signature/pix/${selectedPlan}`,
-          {
-            yearly: billingCycle === "YEARLY",
-            partnerCode: coupon.trim() || undefined,
-          },
-          true,
-        );
-        console.log("isFree: ", res);
-        if (res.status === 200 && (res.body?.gift || !res.body?.payment)) {
-          toast.success("Assinatura ativada! Bem-vindo(a).");
-          router.push("/thanks");
-        } else {
-          toast.error(res.body?.message || "Não foi possível ativar.");
-        }
-        return;
-      }
-
       if (paymentMethod === "pix" && !pixGenerated) {
-        console.log("entrou pix");
-        const res = await PostAPI(
-          `/signature/pix/${selectedPlan}`,
-          {
-            yearly: billingCycle === "YEARLY",
-            partnerCode: coupon.trim() || undefined,
-          },
-          true,
-        );
-        console.log("pix: ", res);
-        if (res.status === 200 && res.body?.payment) {
-          setPixPayload(res.body.payment.payload || "");
-          setPixEncodedImage(res.body.payment.encodedImage || null);
-          setPixGenerated(true);
-        } else if (
-          res.status === 200 &&
-          (res.body?.gift || !res.body?.payment)
-        ) {
-          toast.success("Assinatura ativada! Bem-vindo(a).");
-          router.push("/thanks");
-        } else {
-          toast.error(res.body?.message || "Não foi possível gerar o PIX.");
-        }
+        const res = await submitHubCheckout({
+          plan: selectedPlan,
+          method: "pix",
+          name: holder,
+          email: email.trim(),
+          doc: onlyDigits(cpf),
+          phone: onlyDigits(phone),
+          attribution: { origem: "institucional-plans" },
+        });
+        setCheckoutId(res.checkoutId);
+        setPixPayload(res.pix?.copiaECola ?? "");
+        setPixEncodedImage(res.pix?.qrBase64 ?? null);
+        setPixGenerated(true);
+        jlp("checkout_result", { plan: selectedPlan, method: "pix", status: res.status });
         return;
       }
 
       if (paymentMethod === "card") {
-        console.log("entrou card");
-        if (!parseExpiry(exp)) {
+        const expiry = parseExpiry(exp);
+        if (!expiry) {
           toast.error("Data de validade inválida.");
           return;
         }
-        const expParts = exp.trim().split("/");
-        const expiryMonth = expParts[0] ?? "";
-        const expiryYear = expParts[1] ?? "";
-        const payload = {
-          planId: selectedPlan,
-          yearly: billingCycle === "YEARLY",
-          creditCard: {
+        const res = await submitHubCheckout({
+          plan: selectedPlan,
+          method: "card",
+          name: holder,
+          email: email.trim(),
+          doc: onlyDigits(cpf),
+          phone: onlyDigits(phone),
+          card: {
             holderName: holder.toUpperCase(),
             number: onlyDigits(cardNumber),
-            expiryMonth,
-            expiryYear,
+            expiryMonth: expiry.month,
+            expiryYear: expiry.year,
             ccv: onlyDigits(cvv),
-          },
-          creditCardHolderInfo: {
-            name: holder,
-            email: email.trim(),
-            cpfCnpj: onlyDigits(cpf),
             postalCode: onlyDigits(cep),
             addressNumber: house.trim(),
-            phone: onlyDigits(phone),
           },
-          installmentCount: 12,
-          partnerCode: coupon.trim() || undefined,
-        };
-        console.log("payload: ", payload);
-        const res = await PostAPI("/signature/credit/new", payload, true);
-        console.log("credit/new: ", res);
-        if (res.status === 200) {
-          toast.success("Pagamento realizado com sucesso!");
+          attribution: { origem: "institucional-plans" },
+        });
+        setCheckoutId(res.checkoutId);
+        jlp("checkout_result", { plan: selectedPlan, method: "card", status: res.status });
+        if (res.status === "PAID") {
+          setPaid(true);
+          toast.success("Pagamento aprovado! Seu acesso chegou no seu e-mail.");
           router.push("/thanks");
         } else {
-          toast.error(res.body?.message || "Erro ao processar pagamento.");
+          // Cartão em análise: o polling acompanha; o acesso sai por e-mail.
+          toast.success(
+            "Pagamento em processamento — assim que confirmar, o acesso chega no seu e-mail.",
+          );
         }
       }
     } catch (e) {
-      console.error(e);
-      toast.error("Ocorreu um erro inesperado.");
+      jlp("checkout_error", {
+        plan: selectedPlan,
+        method: paymentMethod,
+        message: e instanceof Error ? e.message.slice(0, 160) : "desconhecido",
+      });
+      toast.error(e instanceof Error ? e.message : "Ocorreu um erro inesperado.");
     } finally {
       setSubmitLoading(false);
     }
@@ -390,6 +346,7 @@ function PlansPageInner() {
       setPixGenerated(false);
       setPixPayload("");
       setPixEncodedImage(null);
+      setCheckoutId(null);
       return;
     }
     if (viewState === "checkout") {
@@ -402,20 +359,14 @@ function PlansPageInner() {
   const isCheckout = viewState === "checkout";
 
   const priceLabel = () => {
-    if (isFree) return "";
-    if (paymentMethod === "card" && billingCycle === "YEARLY")
-      return "Cobrança em 12x (anual)";
-    if (paymentMethod === "card") return "Cobrança mensal";
-    return billingCycle === "YEARLY"
-      ? "Valor total anual via PIX"
-      : "Pagamento via PIX";
+    if (paymentMethod === "card") return "Cobrança mensal no cartão";
+    return "Assinatura mensal via Pix Automático";
   };
 
   const submitLabel = () => {
     if (submitLoading) return "Processando...";
-    if (isFree) return "Confirmar inscrição gratuita";
     if (paymentMethod === "pix" && !pixGenerated) return "Gerar PIX";
-    if (paymentMethod === "pix") return "Já paguei — continuar";
+    if (paymentMethod === "pix") return "Aguardando pagamento…";
     return "Finalizar pagamento";
   };
 
@@ -433,11 +384,11 @@ function PlansPageInner() {
           {viewState === "plans" && (
             <PlansSection
               key="plans"
-              plans={plans}
-              loadingPlans={loadingPlans}
-              billingCycle={billingCycle}
+              plans={HUB_PLANS}
+              loadingPlans={false}
+              billingCycle="MONTHLY"
               selectedPlan={selectedPlan}
-              onBillingCycleChange={setBillingCycle}
+              onBillingCycleChange={() => {}}
               onPlanSelect={setSelectedPlan}
               onContinue={() => {
                 if (selectedPlan) setViewState("checkout");
@@ -449,10 +400,10 @@ function PlansPageInner() {
             <CheckoutSection
               key="checkout"
               selectedPlan={selectedPlanData}
-              billingCycle={billingCycle}
+              billingCycle="MONTHLY"
               paymentMethod={paymentMethod}
-              isFree={isFree}
-              discountPercent={discountPercent}
+              isFree={false}
+              discountPercent={0}
               finalPrice={finalPrice}
               cpf={cpf}
               holder={holder}
@@ -464,12 +415,10 @@ function PlansPageInner() {
               cardNumber={cardNumber}
               cvv={cvv}
               exp={exp}
-              coupon={coupon}
               pixGenerated={pixGenerated}
               pixCopied={pixCopied}
               pixPayload={pixPayload}
               pixEncodedImage={pixEncodedImage}
-              isValidatingCoupon={isValidatingCoupon}
               onPaymentMethodChange={handleChangePaymentMethod}
               onCpfChange={setCpf}
               onHolderChange={setHolder}
@@ -481,8 +430,6 @@ function PlansPageInner() {
               onCardNumberChange={setCardNumber}
               onCvvChange={setCvv}
               onExpChange={setExp}
-              onCouponChange={setCoupon}
-              onCheckCoupon={handleCheckCoupon}
               onCopyPixCode={handleCopyPixCode}
               onAlreadyPaid={() => router.push("/thanks")}
             />
@@ -493,10 +440,10 @@ function PlansPageInner() {
           show={showCheckoutFooter}
           priceLabel={priceLabel()}
           basePrice={basePrice}
-          discountPercent={discountPercent}
+          discountPercent={0}
           finalPrice={finalPrice}
-          isFree={isFree}
-          billingCycle={billingCycle}
+          isFree={false}
+          billingCycle="MONTHLY"
           paymentMethod={paymentMethod}
           submitLoading={submitLoading}
           canSubmit={canSubmit}

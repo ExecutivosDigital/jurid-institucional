@@ -3,23 +3,22 @@
 import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useApiContext } from "context/ApiContext";
-import { track } from "lib/analytics";
-import {
-  buildLawyerRegisterBody,
-  getLawyerRegisterErrorMessage,
-  redirectToAppWithToken,
-} from "lib/lawyer-register";
+import { track } from "lib/analytics"; // registra também o tipo global window.jlp
+import { submitHubTrial } from "lib/hub-checkout";
 
 type Step = 1 | 2;
 
+/**
+ * SEM campo de senha de propósito (27/08/2026): o teste grátis virou uma
+ * CORTESIA criada no Hub — a senha é gerada no servidor e entregue só por
+ * e-mail, igual à compra da LP. Senha escolhida num formulário público
+ * deixaria qualquer um "recadastrar" o e-mail de outra pessoa.
+ */
 interface FormData {
   name: string;
   phone: string;
   email: string;
   document: string;
-  password: string;
-  confirmPassword: string;
 }
 
 const INITIAL_DATA: FormData = {
@@ -27,8 +26,6 @@ const INITIAL_DATA: FormData = {
   phone: "",
   email: "",
   document: "",
-  password: "",
-  confirmPassword: "",
 };
 
 function maskPhone(value: string) {
@@ -53,7 +50,6 @@ function maskDocument(value: string) {
 }
 
 export function TrialForm() {
-  const { PostAPI } = useApiContext();
   const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState<FormData>(INITIAL_DATA);
   const [submitted, setSubmitted] = useState(false);
@@ -64,10 +60,7 @@ export function TrialForm() {
     data.phone.replace(/\D/g, "").length >= 11 &&
     /\S+@\S+\.\S+/.test(data.email);
 
-  const step2Valid =
-    data.document.replace(/\D/g, "").length >= 11 &&
-    data.password.length >= 6 &&
-    data.password === data.confirmPassword;
+  const step2Valid = data.document.replace(/\D/g, "").length >= 11;
 
   function update<K extends keyof FormData>(key: K, value: FormData[K]) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -77,48 +70,50 @@ export function TrialForm() {
     e.preventDefault();
     if (!step2Valid || submitting) return;
     setSubmitting(true);
-    const phoneDigits = data.phone.replace(/\D/g, "");
-    const res = await PostAPI(
-      "/lawyer/register",
-      buildLawyerRegisterBody({
-        name: data.name,
-        email: data.email,
-        phoneDigits,
-        password: data.password,
-        trial: true,
-      }),
-      false
-    );
-    setSubmitting(false);
-    const [firstName, ...lastParts] = data.name.trim().split(/\s+/);
-    const lastName = lastParts.join(" ") || undefined;
-    const leadOptions = {
-      userData: {
-        email: data.email,
-        phone: data.phone,
-        firstName,
-        lastName,
-      },
-    };
-    if (res.status === 200 && res.body?.accessToken) {
+    try {
+      window.jlp?.("trial_submit", { source: "institucional-trial" });
+    } catch {}
+    try {
+      // Cortesia criada no Hub: conta ATIVA na hora, login + senha por e-mail.
+      await submitHubTrial({
+        name: data.name.trim(),
+        email: data.email.trim(),
+        doc: data.document.replace(/\D/g, ""),
+        phone: data.phone.replace(/\D/g, ""),
+        attribution: { origem: "institucional-trial" },
+      });
+      const [firstName, ...lastParts] = data.name.trim().split(/\s+/);
       track(
         "Lead",
         { source: "trial_form", content_name: "trial_signup_completed" },
-        leadOptions,
-      );
-      redirectToAppWithToken(res.body.accessToken as string);
-      return;
-    }
-    if (res.status === 200) {
-      track(
-        "Lead",
-        { source: "trial_form", content_name: "trial_signup_completed" },
-        leadOptions,
+        {
+          userData: {
+            email: data.email,
+            phone: data.phone,
+            firstName,
+            lastName: lastParts.join(" ") || undefined,
+          },
+        },
       );
       setSubmitted(true);
-      return;
+      try {
+        window.jlp?.("trial_result", { status: "ACTIVE" });
+      } catch {}
+    } catch (err) {
+      try {
+        window.jlp?.("trial_result", {
+          status: "ERROR",
+          message: err instanceof Error ? err.message.slice(0, 160) : "desconhecido",
+        });
+      } catch {}
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Não foi possível criar sua conta. Tente novamente.",
+      );
+    } finally {
+      setSubmitting(false);
     }
-    toast.error(getLawyerRegisterErrorMessage(res.body));
   }
 
   return (
@@ -157,8 +152,9 @@ export function TrialForm() {
               </div>
               <h4>Conta criada com sucesso!</h4>
               <p>
-                Enviamos um e-mail para <strong>{data.email}</strong> com os
-                próximos passos. Sua avaliação gratuita começa agora.
+                Seu acesso já está ativo: enviamos um e-mail para{" "}
+                <strong>{data.email}</strong> com o seu <strong>login e senha</strong>.
+                Sua avaliação gratuita começa agora.
               </p>
             </div>
           ) : (
@@ -221,6 +217,7 @@ export function TrialForm() {
                     className="i2-trial__btn i2-trial__btn--primary"
                     onClick={() => step1Valid && setStep(2)}
                     disabled={!step1Valid}
+                    data-lp-cta="trial-continuar"
                   >
                     Continuar
                     <ArrowRight size={18} strokeWidth={2} />
@@ -243,37 +240,10 @@ export function TrialForm() {
                       required
                     />
                   </label>
-                  <label className="i2-trial__field">
-                    <span>Senha</span>
-                    <input
-                      type="password"
-                      autoComplete="new-password"
-                      placeholder="Mínimo de 6 caracteres"
-                      value={data.password}
-                      onChange={(e) => update("password", e.target.value)}
-                      required
-                      minLength={6}
-                    />
-                  </label>
-                  <label className="i2-trial__field">
-                    <span>Confirme sua senha</span>
-                    <input
-                      type="password"
-                      autoComplete="new-password"
-                      placeholder="Repita a senha"
-                      value={data.confirmPassword}
-                      onChange={(e) =>
-                        update("confirmPassword", e.target.value)
-                      }
-                      required
-                    />
-                    {data.confirmPassword &&
-                      data.password !== data.confirmPassword && (
-                        <small className="i2-trial__error">
-                          As senhas não conferem.
-                        </small>
-                      )}
-                  </label>
+                  <p className="i2-trial__legal" style={{ marginTop: 0 }}>
+                    Sua senha de acesso é gerada automaticamente e chega no seu
+                    e-mail junto com o link de login — nada para decorar agora.
+                  </p>
 
                   <div className="i2-trial__row">
                     <button
@@ -288,6 +258,7 @@ export function TrialForm() {
                       type="submit"
                       className="i2-trial__btn i2-trial__btn--primary"
                       disabled={!step2Valid || submitting}
+                      data-lp-cta="trial-comecar"
                     >
                       {submitting ? (
                         <Loader2 size={18} strokeWidth={2} className="i2-auth__spin" />

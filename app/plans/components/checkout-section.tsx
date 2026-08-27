@@ -2,15 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "lib/utils";
-import {
-  Check,
-  CreditCard,
-  Loader2,
-  MapPin,
-  Shield,
-  Ticket,
-  User,
-} from "lucide-react";
+import { CreditCard, MapPin, Shield, User } from "lucide-react";
 import {
   CardPreview,
   Field,
@@ -49,13 +41,11 @@ interface CheckoutSectionProps {
   cardNumber: string;
   cvv: string;
   exp: string;
-  coupon: string;
   // State
   pixGenerated: boolean;
   pixCopied: boolean;
   pixPayload: string;
   pixEncodedImage: string | null;
-  isValidatingCoupon: boolean;
   // Handlers
   onPaymentMethodChange: (method: PaymentMethod) => void;
   onCpfChange: (value: string) => void;
@@ -78,8 +68,6 @@ interface CheckoutSectionProps {
   onCvvBlur?: () => void;
   onExpChange: (value: string) => void;
   onExpBlur?: () => void;
-  onCouponChange: (value: string) => void;
-  onCheckCoupon: () => void;
   onCopyPixCode: () => void;
   onAlreadyPaid: () => void;
 }
@@ -101,12 +89,10 @@ export function CheckoutSection({
   cardNumber,
   cvv,
   exp,
-  coupon,
   pixGenerated,
   pixCopied,
   pixPayload,
   pixEncodedImage,
-  isValidatingCoupon,
   onPaymentMethodChange,
   onCpfChange,
   onCpfBlur,
@@ -128,8 +114,6 @@ export function CheckoutSection({
   onCvvBlur,
   onExpChange,
   onExpBlur,
-  onCouponChange,
-  onCheckCoupon,
   onCopyPixCode,
   onAlreadyPaid,
 }: CheckoutSectionProps) {
@@ -304,63 +288,6 @@ export function CheckoutSection({
             </SectionCard>
           )}
 
-          {/* Coupon */}
-          <SectionCard
-            title="Cupom de Desconto"
-            icon={<Ticket className="h-4 w-4" />}
-          >
-            <Field
-              placeholder="CÓDIGO DO CUPOM"
-              value={coupon}
-              onChange={(t) =>
-                !discountPercent && onCouponChange(t.toUpperCase())
-              }
-              disabled={!!discountPercent}
-              rightElement={
-                <button
-                  type="button"
-                  onClick={onCheckCoupon}
-                  disabled={
-                    isValidatingCoupon || !!discountPercent || !coupon.trim()
-                  }
-                  className={cn(
-                    "ml-1 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold uppercase transition-all",
-                    discountPercent
-                      ? "border border-secondary-1/40 bg-n-2 text-secondary-2 dark:bg-n-8 dark:text-secondary-1"
-                      : "bg-n-2 text-n-5 hover:bg-n-3 dark:bg-n-8 dark:text-n-3 dark:hover:bg-n-5",
-                    (isValidatingCoupon ||
-                      !!discountPercent ||
-                      !coupon.trim()) &&
-                      "cursor-not-allowed opacity-60",
-                  )}
-                >
-                  {isValidatingCoupon ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
-                  ) : discountPercent ? (
-                    <>
-                      <Check className="h-3 w-3" /> Aplicado
-                    </>
-                  ) : (
-                    "Aplicar"
-                  )}
-                </button>
-              }
-            />
-            {discountPercent > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-3 flex items-center gap-2 rounded-xl border border-secondary-1/35 bg-n-2 px-4 py-2.5 dark:border-n-5 dark:bg-n-8"
-              >
-                <Ticket className="h-4 w-4 shrink-0 text-secondary-1" />
-                <span className="text-sm font-medium text-n-6 dark:text-n-1">
-                  {isFree
-                    ? "100% de desconto — Assinatura Gratuita!"
-                    : `${discountPercent}% de desconto aplicado`}
-                </span>
-              </motion.div>
-            )}
-          </SectionCard>
         </>
       )}
     </motion.div>

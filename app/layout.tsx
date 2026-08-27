@@ -50,6 +50,17 @@ export default function RootLayout({
     })(window, document, "clarity", "script", "we58h01nu1");`}
         </Script>
         <GoogleAnalytics gaId={"G-3M6YVH47ED"} />
+        {/* Tracking próprio do Hub (o MESMO da LP da VSL): identidade
+            visitor/sessão, UTM, pageview, scroll, vídeos e cliques em
+            [data-lp-cta] — tudo aparece na seção LPs do admin como
+            "Site Institucional JuridIA". A chave nasce em /lp/paginas. */}
+        <Script
+          id="jlp-snippet"
+          strategy="afterInteractive"
+          src="https://hub.juridia.com.br/j.js"
+          data-lp="institucional"
+          data-key="pk_lp_institucional_8fb70d6d4c88"
+        />
       </head>
       <body
         className={`${karla.variable} ${inter.variable} bg-n-1 dark:bg-n-6 font-sans text-[1rem] leading-6 -tracking-[.01em] text-n-7 antialiased md:bg-n-1 dark:text-n-1 dark:md:bg-primary-100`}

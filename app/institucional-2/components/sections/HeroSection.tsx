@@ -46,12 +46,16 @@ export function HeroSection() {
           </p>
 
           <div className="i2-hero__ctas">
-            <Link href="/#experimente" className="i2-btn i2-btn--primary">
+            <Link
+              href="/#experimente"
+              className="i2-btn i2-btn--primary"
+              data-lp-cta="hero-teste-gratis"
+            >
               <span className="i2-hide-sm">Começar teste grátis</span>
               <span className="i2-show-sm">Testar agora</span>
               <ArrowRight size={18} strokeWidth={2} />
             </Link>
-            <Link href="#video" className="i2-btn i2-btn--ghost">
+            <Link href="#video" className="i2-btn i2-btn--ghost" data-lp-cta="hero-ver-demo">
               <Play size={16} strokeWidth={2} fill="currentColor" />
               <span className="i2-hide-sm">Ver demonstração</span>
               <span className="i2-show-sm">Ver demo</span>
