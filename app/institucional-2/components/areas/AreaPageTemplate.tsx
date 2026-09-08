@@ -18,6 +18,7 @@ import {
 import type { AreaContent, AreaSlug } from "../../lib/areas-content";
 import { AREA_SLUGS, AREAS_CONTENT } from "../../lib/areas-content";
 import { track } from "lib/analytics";
+import { TRIAL_DAYS_LABEL, TRIAL_FORM_HREF } from "lib/trial";
 
 import img18 from "../../imagens-videos/juridcerto/18.png";
 import img19 from "../../imagens-videos/juridcerto/19.png";
@@ -137,7 +138,11 @@ function AreaHero({
           </ul>
 
           <div className="i2-area-hero__ctas">
-            <Link href="/plans" className="i2-btn i2-btn--primary">
+            <Link
+              href={TRIAL_FORM_HREF}
+              className="i2-btn i2-btn--primary"
+              data-lp-cta="area-hero-teste"
+            >
               <span className="i2-hide-sm">{area.hero.primaryCtaLabel}</span>
               <span className="i2-show-sm">Testar agora</span>
               <ArrowRight size={18} strokeWidth={2} />
@@ -290,7 +295,11 @@ function ChatSection({ area }: { area: AreaContent }) {
                 );
               })}
             </ul>
-            <Link href="/plans" className="i2-btn i2-btn--primary">
+            <Link
+              href={TRIAL_FORM_HREF}
+              className="i2-btn i2-btn--primary"
+              data-lp-cta="area-chat-teste"
+            >
               <span className="i2-hide-sm">{area.chat.ctaLabel}</span>
               <span className="i2-show-sm">Testar agora</span>
               <ArrowRight size={18} strokeWidth={2} />
@@ -467,7 +476,11 @@ function BeforeAfterSection({ area }: { area: AreaContent }) {
         </div>
 
         <div className="i2-area-ba__cta">
-          <Link href="/plans" className="i2-btn i2-btn--primary">
+          <Link
+            href={TRIAL_FORM_HREF}
+            className="i2-btn i2-btn--primary"
+            data-lp-cta="area-ba-teste"
+          >
             <span className="i2-hide-sm">Começar teste grátis</span>
             <span className="i2-show-sm">Testar agora</span>
             <ArrowRight size={18} strokeWidth={2} />
@@ -586,7 +599,7 @@ function GallerySection({ area }: { area: AreaContent }) {
         </div>
 
         <div className="i2-area-gallery__cta">
-          <Link href="/plans" className="i2-btn i2-btn--ghost">
+          <Link href="/#video" className="i2-btn i2-btn--ghost" data-lp-cta="area-galeria-demo">
             <Play size={14} fill="currentColor" />
             Ver o produto em ação
           </Link>
@@ -733,8 +746,12 @@ function AreaMegaCTA({
           <h2 className="i2-area-megacta__title">{area.megaCta.title}</h2>
           <p className="i2-area-megacta__sub">{area.megaCta.subtitle}</p>
           <div className="i2-area-megacta__ctas">
-            <Link href="/plans" className="i2-btn i2-btn--primary">
-              <span className="i2-hide-sm">Testar grátis por 4 dias</span>
+            <Link
+              href={TRIAL_FORM_HREF}
+              className="i2-btn i2-btn--primary"
+              data-lp-cta="area-megacta-teste"
+            >
+              <span className="i2-hide-sm">Testar grátis por {TRIAL_DAYS_LABEL}</span>
               <span className="i2-show-sm">Testar agora</span>
               <ArrowRight size={18} strokeWidth={2} />
             </Link>
@@ -783,7 +800,7 @@ function StickyMobileCTA({ whatsappHref }: { whatsappHref: string }) {
         <MessageCircle size={16} strokeWidth={2.5} />
         WhatsApp
       </a>
-      <Link href="/plans" className="i2-area-sticky__cta">
+      <Link href={TRIAL_FORM_HREF} className="i2-area-sticky__cta" data-lp-cta="area-sticky-teste">
         Teste grátis
         <ArrowRight size={14} strokeWidth={2.5} />
       </Link>

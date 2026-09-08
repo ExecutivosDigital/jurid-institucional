@@ -1,10 +1,12 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { track } from "lib/analytics"; // registra também o tipo global window.jlp
 import { submitHubTrial } from "lib/hub-checkout";
+import { contextoDeAquisicao, ultimoCta } from "lib/acquisition-context";
+import { TRIAL_DAYS, TRIAL_DAYS_LABEL } from "lib/trial";
 
 type Step = 1 | 2;
 
@@ -54,6 +56,19 @@ export function TrialForm() {
   const [data, setData] = useState<FormData>(INITIAL_DATA);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  /** Prazo REAL devolvido pelo Hub — é o que a confirmação mostra. */
+  const [trialDays, setTrialDays] = useState<number | null>(null);
+  /**
+   * CTA que trouxe a pessoa até aqui. Capturado no PRIMEIRO foco no
+   * formulário: depois disso os botões internos ("Continuar", "Começar") são
+   * eles mesmos CTAs rastreados e sobrescreveriam o último CTA do snippet.
+   * `undefined` = ainda não capturado; `null` = capturado, nenhum clicado.
+   */
+  const ctaEntrada = useRef<string | null | undefined>(undefined);
+
+  function lembrarCtaDeEntrada() {
+    if (ctaEntrada.current === undefined) ctaEntrada.current = ultimoCta();
+  }
 
   const step1Valid =
     data.name.trim().length >= 3 &&
@@ -70,18 +85,30 @@ export function TrialForm() {
     e.preventDefault();
     if (!step2Valid || submitting) return;
     setSubmitting(true);
+    // Autofill pode preencher sem disparar foco — garante o snapshot do CTA.
+    lembrarCtaDeEntrada();
+    const contexto = contextoDeAquisicao({
+      formulario: "institucional-trial",
+      ctaEntrada: ctaEntrada.current ?? null,
+    });
     try {
-      window.jlp?.("trial_submit", { source: "institucional-trial" });
+      window.jlp?.("trial_submit", {
+        source: "institucional-trial",
+        cta: contexto.cta_entrada,
+      });
     } catch {}
     try {
       // Cortesia criada no Hub: conta ATIVA na hora, login + senha por e-mail.
-      await submitHubTrial({
+      // `attribution` leva o contexto de aquisição (CTA, campanha, visitante,
+      // sessão) — sem isso a conta nasce no Hub sem origem rastreável.
+      const resultado = await submitHubTrial({
         name: data.name.trim(),
         email: data.email.trim(),
         doc: data.document.replace(/\D/g, ""),
         phone: data.phone.replace(/\D/g, ""),
-        attribution: { origem: "institucional-trial" },
+        attribution: { origem: "institucional-trial", ...contexto },
       });
+      setTrialDays(resultado.trialDays);
       const [firstName, ...lastParts] = data.name.trim().split(/\s+/);
       track(
         "Lead",
@@ -122,7 +149,7 @@ export function TrialForm() {
         <div className="i2-trial__aside">
           <span className="i2-trial__badge">
             <Sparkles size={14} strokeWidth={2} />
-            Teste grátis por 4 dias
+            Teste grátis por {TRIAL_DAYS_LABEL}
           </span>
           <h3 className="i2-trial__title">
             Experimente a JuridIA sem compromisso
@@ -133,7 +160,7 @@ export function TrialForm() {
           </p>
           <ul className="i2-trial__list">
             <li>
-              <Check size={16} strokeWidth={2.5} /> 4 dias com acesso total
+              <Check size={16} strokeWidth={2.5} /> {TRIAL_DAYS_LABEL} com acesso total
             </li>
             <li>
               <Check size={16} strokeWidth={2.5} /> Sem cobrança automática
@@ -144,7 +171,12 @@ export function TrialForm() {
           </ul>
         </div>
 
-        <form className="i2-trial__form" onSubmit={handleSubmit} noValidate>
+        <form
+          className="i2-trial__form"
+          onSubmit={handleSubmit}
+          onFocus={lembrarCtaDeEntrada}
+          noValidate
+        >
           {submitted ? (
             <div className="i2-trial__success">
               <div className="i2-trial__success-icon">
@@ -154,7 +186,8 @@ export function TrialForm() {
               <p>
                 Seu acesso já está ativo: enviamos um e-mail para{" "}
                 <strong>{data.email}</strong> com o seu <strong>login e senha</strong>.
-                Sua avaliação gratuita começa agora.
+                Sua avaliação gratuita de{" "}
+                <strong>{trialDays ?? TRIAL_DAYS} dias</strong> começa agora.
               </p>
             </div>
           ) : (

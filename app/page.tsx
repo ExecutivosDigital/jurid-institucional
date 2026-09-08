@@ -11,6 +11,7 @@ import { ProductShowcase } from "./institucional-2/components/sections/ProductSh
 import { StoriesGallery } from "./institucional-2/components/sections/StoriesGallery";
 import { VideoShowcase } from "./institucional-2/components/sections/VideoShowcase";
 import { WhatsAppFloat } from "./institucional-2/components/ui/WhatsAppFloat";
+import { TRIAL_FORM_HREF } from "lib/trial";
 import "./institucional-2/institucional-2.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -48,8 +49,9 @@ export default function HomePage() {
           subtitle="Converse com uma IA jurídica que entende o direito brasileiro como ninguém. Peça uma petição inicial, faça uma pesquisa de jurisprudência, tire dúvidas sobre súmulas — tudo em linguagem natural. Treinada com legislação, doutrina e milhões de julgados dos tribunais nacionais para responder com fundamento e contexto real."
           videoLabel="Demo · Chat em ação"
           videoBigLetter="CHAT"
-          ctaHref="/#experimente"
+          ctaHref={TRIAL_FORM_HREF}
           ctaLabel="Testar agora"
+          ctaId="chat-testar-agora"
           videoSrc="/videos/juridia-demo-chat.mp4"
         />
 
@@ -62,6 +64,7 @@ export default function HomePage() {
           videoBigLetter="VOICE"
           ctaHref="https://voice.juridia.com.br/register"
           ctaLabel="Testar agora"
+          ctaId="voice-testar-agora"
           reverse
           videoSrc="/videos/juridia-demo-voice.mp4"
         />

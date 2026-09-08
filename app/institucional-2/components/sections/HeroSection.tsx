@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, Play } from "lucide-react";
+import { TRIAL_DAYS_LABEL, TRIAL_FORM_HREF } from "lib/trial";
 
 const STATS = [
-  { number: "4 dias", label: "Teste gratuito" },
+  { number: TRIAL_DAYS_LABEL, label: "Teste gratuito" },
   { number: "4.500+", label: "Usuários ativos" },
   { number: "97,5%", label: "Satisfação" },
 ];
@@ -47,7 +48,7 @@ export function HeroSection() {
 
           <div className="i2-hero__ctas">
             <Link
-              href="/#experimente"
+              href={TRIAL_FORM_HREF}
               className="i2-btn i2-btn--primary"
               data-lp-cta="hero-teste-gratis"
             >

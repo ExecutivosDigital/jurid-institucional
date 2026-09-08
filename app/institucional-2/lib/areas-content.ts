@@ -1,3 +1,4 @@
+import { TRIAL_DAYS_LABEL } from "lib/trial";
 import type { Metadata } from "next";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -188,7 +189,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada na CLT, Súmulas do TST e jurisprudência dos 24 TRTs",
         "Usada por +800 advogados trabalhistas",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "87%", label: "do tempo economizado em petições" },
@@ -407,7 +408,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         {
           question: "Quanto tempo dura o teste grátis?",
           answer:
-            "São 4 dias com acesso completo ao Chat e ao Voice, sem cartão de crédito. Você testa no seu caso real e decide se faz sentido.",
+            `São ${TRIAL_DAYS_LABEL} com acesso completo ao Chat e ao Voice, sem cartão de crédito. Você testa no seu caso real e decide se faz sentido.`,
         },
         {
           question: "Preciso instalar alguma coisa?",
@@ -420,7 +421,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
       eyebrow: "Comece hoje",
       title: "Pronto para dobrar a produtividade no trabalhista?",
       subtitle:
-        "Teste grátis por 4 dias, sem cartão de crédito. Fale com a gente no WhatsApp e a gente configura junto com você.",
+        `Teste grátis por ${TRIAL_DAYS_LABEL}, sem cartão de crédito. Fale com a gente no WhatsApp e a gente configura junto com você.`,
     },
     whatsapp: {
       message:
@@ -451,7 +452,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada na Lei 8.213/91, RPS e EC 103",
         "Usada por +600 previdenciaristas",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "92%", label: "menos tempo analisando CNIS" },
@@ -669,7 +670,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         {
           question: "Quanto tempo dura o teste?",
           answer:
-            "4 dias com acesso total, sem cartão. Perfeito para testar em um caso real.",
+            `${TRIAL_DAYS_LABEL} com acesso total, sem cartão. Perfeito para testar em um caso real.`,
         },
         {
           question: "Meus dados ficam seguros?",
@@ -681,7 +682,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Escritório previdenciário 10x",
       title: "Analise o próximo CNIS em 2 minutos",
-      subtitle: "Teste grátis por 4 dias. Atenda mais clientes sem abrir mão do cuidado.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Atenda mais clientes sem abrir mão do cuidado.`,
     },
     whatsapp: {
       message:
@@ -712,7 +713,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada no CC/2002, CPC/2015 e +500 súmulas do STJ",
         "Usada por advogados cíveis em todo o Brasil",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "80%", label: "menos tempo por petição" },
@@ -929,7 +930,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         },
         {
           question: "Quanto tempo dura o teste grátis?",
-          answer: "4 dias com acesso total, sem cartão de crédito.",
+          answer: `${TRIAL_DAYS_LABEL} com acesso total, sem cartão de crédito.`,
         },
         {
           question: "Meus dados estão seguros?",
@@ -941,7 +942,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Cível no controle",
       title: "Vire a chave no seu contencioso cível",
-      subtitle: "Teste grátis por 4 dias. Fale com a gente no WhatsApp para uma demo focada no seu tipo de causa.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Fale com a gente no WhatsApp para uma demo focada no seu tipo de causa.`,
     },
     whatsapp: {
       message: "Olá! Sou advogado(a) cível e quero testar a JuridIA.",
@@ -971,7 +972,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada no CP, CPP, legislação extravagante e jurisprudência do STJ e STF",
         "Usada por bancas criminais de todo o Brasil",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "6h", label: "de AIJ transcrita automaticamente" },
@@ -1188,7 +1189,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         },
         {
           question: "Teste grátis?",
-          answer: "4 dias com acesso completo ao Chat e ao Voice, sem cartão.",
+          answer: `${TRIAL_DAYS_LABEL} com acesso completo ao Chat e ao Voice, sem cartão.`,
         },
         {
           question: "Sigilo e LGPD?",
@@ -1200,7 +1201,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Defesa plena",
       title: "A ferramenta que todo criminalista merece",
-      subtitle: "Teste grátis por 4 dias. Fale com a gente no WhatsApp e veja uma demo do Voice em AIJ.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Fale com a gente no WhatsApp e veja uma demo do Voice em AIJ.`,
     },
     whatsapp: {
       message: "Olá! Sou advogado(a) criminalista e quero testar a JuridIA.",
@@ -1230,7 +1231,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada no CTN, LC 87, LC 116, LC 123, jurisprudência do CARF e do STJ",
         "Usada por tributaristas de M&A e contencioso",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "95%", label: "menos tempo analisando CDA" },
@@ -1447,7 +1448,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         },
         {
           question: "Qual a duração do teste?",
-          answer: "4 dias com acesso total.",
+          answer: `${TRIAL_DAYS_LABEL} com acesso total.`,
         },
         {
           question: "Sigilo corporativo é respeitado?",
@@ -1459,7 +1460,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Tese tributária de alto nível",
       title: "Escale o seu contencioso tributário",
-      subtitle: "Teste grátis por 4 dias. Demonstração focada em análise de CDA e embargos.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Demonstração focada em análise de CDA e embargos.`,
     },
     whatsapp: {
       message: "Olá! Sou advogado(a) tributarista e quero entender a JuridIA.",
@@ -1489,7 +1490,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada na Lei das S.A., Código Civil, LGPD e LAI",
         "Usada por bancas de contencioso corporativo e consultivo",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "10x", label: "mais contratos redigidos por semana" },
@@ -1706,7 +1707,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         },
         {
           question: "Quanto tempo de teste?",
-          answer: "4 dias com acesso total, sem cartão.",
+          answer: `${TRIAL_DAYS_LABEL} com acesso total, sem cartão.`,
         },
         {
           question: "Tem plano corporativo para o escritório todo?",
@@ -1718,7 +1719,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Corporativo no ritmo do cliente",
       title: "O seu consultivo nunca mais atrasa",
-      subtitle: "Teste grátis por 4 dias. Demonstração focada em contrato, due diligence e board.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Demonstração focada em contrato, due diligence e board.`,
     },
     whatsapp: {
       message: "Olá! Sou advogado(a) empresarial e quero saber mais sobre a JuridIA.",
@@ -1748,7 +1749,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada no CC/2002, ECA, Lei da Alienação Parental e jurisprudência dos TJs",
         "Usada por advogados de família em todo o Brasil",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "100%", label: "do tempo da consulta focado no cliente" },
@@ -1965,7 +1966,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         },
         {
           question: "Teste grátis?",
-          answer: "4 dias completos, sem cartão.",
+          answer: `${TRIAL_DAYS_LABEL} completos, sem cartão.`,
         },
         {
           question: "LGPD e sigilo familiar?",
@@ -1977,7 +1978,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Humano no centro",
       title: "Volte a escutar o cliente sem perder petição",
-      subtitle: "Teste grátis por 4 dias. Demonstração focada em consulta emocional + divórcio.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Demonstração focada em consulta emocional + divórcio.`,
     },
     whatsapp: {
       message: "Olá! Sou advogado(a) de família e quero saber mais sobre a JuridIA.",
@@ -2007,7 +2008,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         "Treinada no CDC, Lei do SUS, Lei das Cias Aéreas e súmulas do STJ",
         "Usada por escritórios de massa em todo o Brasil",
       ],
-      primaryCtaLabel: "Testar grátis por 4 dias",
+      primaryCtaLabel: `Testar grátis por ${TRIAL_DAYS_LABEL}`,
       secondaryCtaLabel: "Falar no WhatsApp",
       stats: [
         { number: "15x", label: "mais ações ajuizadas por semana" },
@@ -2224,7 +2225,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
         },
         {
           question: "Teste grátis?",
-          answer: "4 dias com acesso total, sem cartão.",
+          answer: `${TRIAL_DAYS_LABEL} com acesso total, sem cartão.`,
         },
         {
           question: "LGPD e sigilo dos dados dos meus clientes?",
@@ -2236,7 +2237,7 @@ export const AREAS_CONTENT: Record<AreaSlug, AreaContent> = {
     megaCta: {
       eyebrow: "Escala com técnica",
       title: "Pronto para escalar o contencioso de massa?",
-      subtitle: "Teste grátis por 4 dias. Demo focada em lote de iniciais e contestação bancária.",
+      subtitle: `Teste grátis por ${TRIAL_DAYS_LABEL}. Demo focada em lote de iniciais e contestação bancária.`,
     },
     whatsapp: {
       message: "Olá! Sou advogado(a) consumerista e quero saber mais sobre a JuridIA.",

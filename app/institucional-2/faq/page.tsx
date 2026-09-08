@@ -1,5 +1,6 @@
 "use client";
 
+import { TRIAL_DAYS_LABEL, TRIAL_FORM_HREF } from "lib/trial";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
@@ -92,7 +93,7 @@ const CATEGORIES: FAQCategory[] = [
       },
       {
         q: "Tem teste grátis?",
-        a: "Sim. São 4 dias de teste grátis com acesso completo ao Chat e ao Voice, sem cartão de crédito. Você testa no seu caso real e decide se faz sentido.",
+        a: `Sim. São ${TRIAL_DAYS_LABEL} de teste grátis com acesso completo ao Chat e ao Voice, sem cartão de crédito. Você testa no seu caso real e decide se faz sentido.`,
       },
       {
         q: "Quais formas de pagamento?",
@@ -323,7 +324,11 @@ export default function FAQPage() {
                   <MessageCircle size={16} strokeWidth={2.25} />
                   Abrir conversa
                 </a>
-                <Link href="/plans" className="i2-btn i2-btn--ghost">
+                <Link
+                  href={TRIAL_FORM_HREF}
+                  className="i2-btn i2-btn--ghost"
+                  data-lp-cta="faq-cta-teste"
+                >
                   Começar teste grátis
                   <ArrowRight size={18} strokeWidth={2} />
                 </Link>

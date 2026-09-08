@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { ArrowRight, MessageCircle, Scale, Sparkles, Check } from "lucide-react";
 import { track } from "lib/analytics";
+import { TRIAL_DAYS_LABEL } from "lib/trial";
 
 const WHATSAPP_HREF =
   "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Estou+no+site+da+Jurid+IA+e+gostaria+de+conhecer+mais+sobre+os+servi%C3%A7os.&type=phone_number&app_absent=0";
 
 const BENEFITS = [
   "Sem cartão de crédito",
-  "4 dias de teste grátis",
+  `${TRIAL_DAYS_LABEL} de teste grátis`,
   "Cancele quando quiser",
 ];
 

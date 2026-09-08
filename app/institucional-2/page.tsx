@@ -8,6 +8,7 @@ import { StoriesGallery } from "./components/sections/StoriesGallery";
 import { PricingSection } from "./components/sections/PricingSection";
 import { MegaCTA } from "./components/sections/MegaCTA";
 import { WhatsAppFloat } from "./components/ui/WhatsAppFloat";
+import { TRIAL_FORM_HREF } from "lib/trial";
 
 // Toggle a seção de Planos/Preços. Mude para `true` para religar.
 const SHOW_PRICING = false;
@@ -28,8 +29,9 @@ export default function Institucional2Page() {
           subtitle="Converse com uma IA jurídica que entende o direito brasileiro como ninguém. Peça uma petição inicial, faça uma pesquisa de jurisprudência, tire dúvidas sobre súmulas — tudo em linguagem natural. Treinada com legislação, doutrina e milhões de julgados dos tribunais nacionais para responder com fundamento e contexto real."
           videoLabel="Demo · Chat em ação"
           videoBigLetter="CHAT"
-          ctaHref="#experimente"
+          ctaHref={TRIAL_FORM_HREF}
           ctaLabel="Testar agora"
+          ctaId="chat-testar-agora"
           videoSrc="/videos/juridia-demo-chat.mp4"
         />
 
@@ -42,6 +44,7 @@ export default function Institucional2Page() {
           videoBigLetter="VOICE"
           ctaHref="https://voice.juridia.com.br/register"
           ctaLabel="Testar agora"
+          ctaId="voice-testar-agora"
           reverse
           videoSrc="/videos/juridia-demo-voice.mp4"
         />

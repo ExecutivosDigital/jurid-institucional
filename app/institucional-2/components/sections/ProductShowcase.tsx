@@ -13,6 +13,8 @@ interface ProductShowcaseProps {
   videoBigLetter: string;
   ctaHref: string;
   ctaLabel: string;
+  /** Rótulo estável do CTA no tracking do Hub (data-lp-cta). */
+  ctaId?: string;
   reverse?: boolean;
   videoSrc?: string;
 }
@@ -26,6 +28,7 @@ export function ProductShowcase({
   videoBigLetter,
   ctaHref,
   ctaLabel,
+  ctaId,
   reverse = false,
   videoSrc,
 }: ProductShowcaseProps) {
@@ -118,7 +121,7 @@ export function ProductShowcase({
             <h2 className="i2-product__title">{title}</h2>
             <p className="i2-product__subtitle">{subtitle}</p>
             <div className="i2-product__cta">
-              <Link href={ctaHref} className="i2-btn i2-btn--primary">
+              <Link href={ctaHref} className="i2-btn i2-btn--primary" data-lp-cta={ctaId}>
                 {ctaLabel}
                 <ArrowRight size={18} strokeWidth={2} />
               </Link>

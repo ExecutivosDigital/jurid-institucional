@@ -20,6 +20,7 @@ import {
 import { Navbar } from "../components/layout/Navbar";
 import { Footer } from "../components/layout/Footer";
 import { WhatsAppFloat } from "../components/ui/WhatsAppFloat";
+import { TRIAL_DAYS_LABEL, TRIAL_FORM_HREF } from "lib/trial";
 
 export const metadata: Metadata = {
   title: "Inteligência Artificial Jurídica — JuridIA",
@@ -133,8 +134,12 @@ export default function InteligenciaArtificialPage() {
                 escritório, não como um chatbot.
               </p>
               <div className="i2-info-hero__ctas">
-                <Link href="/plans" className="i2-btn i2-btn--primary">
-                  Testar grátis por 4 dias
+                <Link
+                  href={TRIAL_FORM_HREF}
+                  className="i2-btn i2-btn--primary"
+                  data-lp-cta="ia-hero-teste"
+                >
+                  Testar grátis por {TRIAL_DAYS_LABEL}
                   <ArrowRight size={18} strokeWidth={2} />
                 </Link>
                 <a
@@ -257,11 +262,15 @@ export default function InteligenciaArtificialPage() {
                 <span className="i2-info-cta__title-gold">o seu processo</span>
               </h2>
               <p className="i2-info-cta__sub">
-                4 dias grátis, sem cartão de crédito. Teste com um caso real do
+                {TRIAL_DAYS_LABEL} grátis, sem cartão de crédito. Teste com um caso real do
                 seu escritório e compare com a sua ferramenta atual.
               </p>
               <div className="i2-info-cta__ctas">
-                <Link href="/plans" className="i2-btn i2-btn--primary">
+                <Link
+                  href={TRIAL_FORM_HREF}
+                  className="i2-btn i2-btn--primary"
+                  data-lp-cta="ia-cta-teste"
+                >
                   Começar teste grátis
                   <ArrowRight size={18} strokeWidth={2} />
                 </Link>

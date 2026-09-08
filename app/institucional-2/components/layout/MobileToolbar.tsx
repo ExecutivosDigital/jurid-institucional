@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { track } from "lib/analytics";
+import { APP_LOGIN_URL } from "lib/app-links";
 import {
   Home,
   Mic,
@@ -19,8 +20,6 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-
-const APP_URL = "https://app.juridia.com.br";
 
 type Area = {
   label: string;
@@ -147,10 +146,11 @@ export function MobileToolbar() {
           <span>Áreas</span>
         </button>
         <a
-          href={APP_URL}
+          href={APP_LOGIN_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="i2-mtoolbar__item i2-mtoolbar__item--login"
+          data-lp-cta="mobile-login"
           onClick={() =>
             track("PageView", {
               source: "mobile_toolbar_login",

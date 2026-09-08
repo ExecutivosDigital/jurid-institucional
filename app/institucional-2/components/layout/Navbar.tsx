@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { track } from "lib/analytics";
+import { APP_LOGIN_URL } from "lib/app-links";
 import {
   ChevronDown,
   Sparkles,
@@ -194,11 +195,14 @@ export function Navbar({ showAnnounce = true }: NavbarProps = {}) {
           </nav>
 
           <div className="i2-navbar__actions">
+            {/* LOGIN, não cadastro: quem quer testar usa o formulário gratuito
+                (#experimente); quem já tem conta entra por aqui. */}
             <a
-              href="https://app.juridia.com.br/sign-in?register"
+              href={APP_LOGIN_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="i2-navbar__login"
+              data-lp-cta="header-entrar"
               onClick={() =>
                 track("PageView", {
                   source: "navbar_login",
