@@ -1,10 +1,10 @@
 "use client";
 
 import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { track } from "lib/analytics"; // registra também o tipo global window.jlp
-import { submitHubTrial } from "lib/hub-checkout";
+import { hubTrialReadiness, submitHubTrial } from "lib/hub-checkout";
 import { contextoDeAquisicao, ultimoCta } from "lib/acquisition-context";
 import { TRIAL_DAYS, TRIAL_DAYS_LABEL } from "lib/trial";
 
@@ -58,6 +58,26 @@ export function TrialForm() {
   const [submitting, setSubmitting] = useState(false);
   /** Prazo REAL devolvido pelo Hub — é o que a confirmação mostra. */
   const [trialDays, setTrialDays] = useState<number | null>(null);
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
+  const [readinessToken, setReadinessToken] = useState<string | null>(null);
+  const [readiness, setReadiness] = useState<"PENDING" | "READY" | "DELAYED" | "EXPIRED">("PENDING");
+  const [checkRound, setCheckRound] = useState(0);
+  useEffect(() => {
+    if (!submitted || !readinessToken) return;
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    let attempts = 0;
+    setReadiness("PENDING");
+    const check = async () => {
+      const state = await hubTrialReadiness(readinessToken);
+      if (cancelled) return;
+      if (state === "READY" || state === "EXPIRED") { setReadiness(state); return; }
+      if (++attempts >= 12) { setReadiness("DELAYED"); return; }
+      timer = setTimeout(check, 5_000);
+    };
+    void check();
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [submitted, readinessToken, checkRound]);
   /**
    * CTA que trouxe a pessoa até aqui. Capturado no PRIMEIRO foco no
    * formulário: depois disso os botões internos ("Continuar", "Começar") são
@@ -98,7 +118,7 @@ export function TrialForm() {
       });
     } catch {}
     try {
-      // Cortesia criada no Hub: conta ATIVA na hora, login + senha por e-mail.
+      // Cadastro confirmado; a prontidão dos produtos é consultada separadamente.
       // `attribution` leva o contexto de aquisição (CTA, campanha, visitante,
       // sessão) — sem isso a conta nasce no Hub sem origem rastreável.
       const resultado = await submitHubTrial({
@@ -109,6 +129,9 @@ export function TrialForm() {
         attribution: { origem: "institucional-trial", ...contexto },
       });
       setTrialDays(resultado.trialDays);
+      setTrialEndsAt(resultado.trialEndsAt ?? null);
+      setReadinessToken(resultado.provisioning?.token ?? null);
+      if (!resultado.provisioning?.token) setReadiness("DELAYED");
       const [firstName, ...lastParts] = data.name.trim().split(/\s+/);
       track(
         "Lead",
@@ -124,7 +147,7 @@ export function TrialForm() {
       );
       setSubmitted(true);
       try {
-        window.jlp?.("trial_result", { status: "ACTIVE" });
+        window.jlp?.("trial_result", { status: "CREATED" });
       } catch {}
     } catch (err) {
       try {
@@ -178,17 +201,22 @@ export function TrialForm() {
           noValidate
         >
           {submitted ? (
-            <div className="i2-trial__success">
+            <div className="i2-trial__success" role="status" aria-live="polite">
               <div className="i2-trial__success-icon">
-                <Check size={28} strokeWidth={2.5} />
+                {readiness === "PENDING" ? <Loader2 size={28} className="animate-spin" /> : <Check size={28} strokeWidth={2.5} />}
               </div>
-              <h4>Conta criada com sucesso!</h4>
+              <h4>{readiness === "READY" ? "Seu acesso está pronto!" : "Cadastro recebido!"}</h4>
               <p>
-                Seu acesso já está ativo: enviamos um e-mail para{" "}
-                <strong>{data.email}</strong> com o seu <strong>login e senha</strong>.
-                Sua avaliação gratuita de{" "}
-                <strong>{trialDays ?? TRIAL_DAYS} dias</strong> começa agora.
+                {readiness === "READY" ? "Chat e Voice estão disponíveis. " : readiness === "PENDING"
+                  ? "Estamos preparando seu acesso ao Chat e ao Voice. " : readiness === "EXPIRED"
+                    ? "O prazo deste teste terminou. Consulte as instruções de acesso enviadas ao seu e-mail. "
+                    : "A confirmação do acesso está demorando. Seu cadastro já foi recebido; não precisa preencher novamente. "}
+                {readiness !== "EXPIRED" && <>As instruções de acesso serão enviadas para <strong>{data.email}</strong>.</>}
+                {trialEndsAt && Number.isFinite(Date.parse(trialEndsAt))
+                  ? ` Seu teste termina em ${new Date(trialEndsAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" })} (Brasília).`
+                  : ` Seu teste tem duração de ${trialDays ?? TRIAL_DAYS} dias.`}
               </p>
+              {readiness === "DELAYED" && readinessToken && <button type="button" className="i2-trial__submit" onClick={() => setCheckRound(value => value + 1)}>Verificar acesso novamente</button>}
             </div>
           ) : (
             <>

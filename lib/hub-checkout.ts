@@ -101,7 +101,7 @@ export async function hubCheckoutStatus(
 }
 
 /**
- * Teste grátis: cortesia criada no Hub, ativa na hora, senha por e-mail.
+ * Teste grátis: cortesia criada no Hub; os produtos confirmam a aplicação depois.
  * O servidor recusa e-mail que já tem conta (um teste por pessoa).
  */
 export async function submitHubTrial(payload: {
@@ -110,7 +110,8 @@ export async function submitHubTrial(payload: {
   doc: string;
   phone: string;
   attribution?: Record<string, string>;
-}): Promise<{ status: "ACTIVE"; email: string; trialDays: number }> {
+}): Promise<{ status: "ACTIVE"; email: string; trialDays: number; trialEndsAt?: string;
+  provisioning?: { status: "PENDING"; token: string; expiresAt: string } }> {
   const res = await fetch(`${API}/public/checkout/trial`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -118,6 +119,19 @@ export async function submitHubTrial(payload: {
   });
   if (!res.ok) return erroDoCorpo(res);
   return res.json();
+}
+
+/** Readiness token grants only this status query; never log it or put it in a URL. */
+export async function hubTrialReadiness(token: string): Promise<"READY" | "PENDING" | "EXPIRED" | null> {
+  try {
+    const response = await fetch(`${API}/public/checkout/trial/status`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }), signal: AbortSignal.timeout(6_000),
+    });
+    if (!response.ok) return null;
+    const body = await response.json();
+    return ["READY", "PENDING", "EXPIRED"].includes(body?.status) ? body.status : null;
+  } catch { return null; }
 }
 
 /**
