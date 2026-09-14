@@ -29,6 +29,10 @@ export function maskPhone(value: string): string {
   return d.replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
 }
 
+/** O trial de aquisição aceita CPF, conforme a validação do Hub. */
+export const maskCpf = (value: string) => maskCpfCnpj(digits(value).slice(0, 11));
+export const isValidCpf = (value: string) => digits(value).length === 11 && isCpfCnpj(value);
+
 export const maskCep = (v: string) => digits(v).slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
 
 export const maskCard = (v: string) => digits(v).slice(0, 16).replace(/(\d{4})(?=\d)/g, "$1 ");

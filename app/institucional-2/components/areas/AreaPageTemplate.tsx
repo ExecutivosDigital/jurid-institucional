@@ -70,7 +70,7 @@ function getGalleryImage(slug: string, index: number): StaticImageData {
 const WHATSAPP_HREF =
   "https://api.whatsapp.com/send/?phone=5541984080011&text=Ol%C3%A1%21+Gostaria+de+falar+com+um+humano+sobre+a+JuridIA.&type=phone_number&app_absent=0";
 
-const VOICE_HREF = "https://voice.juridia.com.br/register";
+const VOICE_HREF = TRIAL_FORM_HREF;
 
 type Props = {
   slug: AreaSlug;
@@ -356,8 +356,6 @@ function VoiceSection({ area }: { area: AreaContent }) {
             </ul>
             <a
               href={VOICE_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
               className="i2-btn i2-btn--primary"
               onClick={() =>
                 track("Lead", {

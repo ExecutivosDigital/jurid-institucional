@@ -42,7 +42,7 @@ export default function Institucional2Page() {
           subtitle="Grave audiências, reuniões com clientes e sustentações orais. A IA transcreve em tempo real, identifica os pontos jurídicos relevantes e gera atas, resumos executivos e memorandos prontos para o processo. É como o Plaud e o tl;dv — só que afinado para a rotina dos escritórios brasileiros."
           videoLabel="Demo · Voice em ação"
           videoBigLetter="VOICE"
-          ctaHref="https://voice.juridia.com.br/register"
+          ctaHref={TRIAL_FORM_HREF}
           ctaLabel="Testar agora"
           ctaId="voice-testar-agora"
           reverse
