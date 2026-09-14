@@ -115,6 +115,8 @@ export async function submitHubTrial(payload: {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ plan: HUB_PLAN_CODES.trial, ...payload }),
+  }).catch(() => {
+    throw new Error("Não foi possível conectar ao serviço de cadastro. Tente novamente em instantes.");
   });
   if (!res.ok) return erroDoCorpo(res);
   return res.json();
