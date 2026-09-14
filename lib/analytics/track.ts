@@ -111,7 +111,7 @@ export function track(
   params: EventParams = {},
   options?: TrackOptions,
 ) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "false") return;
 
   const useCapi = !!options?.capi || !!options?.userData;
   const eventId = useCapi ? generateEventId(event) : undefined;
@@ -145,7 +145,7 @@ export function track(
 }
 
 export function trackCustom(event: string, params: EventParams = {}) {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "false") return;
 
   try {
     window.fbq?.("trackCustom", event, params);

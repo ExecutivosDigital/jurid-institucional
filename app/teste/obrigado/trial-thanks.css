@@ -1,0 +1,23 @@
+.trial-thanks{min-height:100vh;background:#f6f5f2;color:#26231f;padding:32px 16px 60px;font-family:inherit}
+.trial-thanks *{box-sizing:border-box}
+.trial-thanks__card{max-width:680px;margin:0 auto;background:#fff;border:1px solid #e7e2d9;border-radius:18px;box-shadow:0 16px 50px #3027180a;overflow:hidden}
+.trial-thanks__header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px 24px;border-bottom:1px solid #eee9e1}
+.trial-thanks__header a{color:#61584b;text-decoration:none;font-size:14px;padding:10px 0}
+.trial-thanks__header .trial-thanks__brand{font-size:24px;font-weight:700;letter-spacing:-1px;color:#8c7045}
+.trial-thanks__body{padding:40px 32px;text-align:center}
+.trial-thanks h1{font-size:28px;font-weight:700;line-height:1.25;margin:20px 0 12px;letter-spacing:-.5px}
+.trial-thanks h2{font-size:17px;font-weight:700;margin:0 0 12px}
+.trial-thanks p{font-size:15px;line-height:1.65;color:#696157;margin:12px 0;overflow-wrap:anywhere}
+.trial-thanks strong{color:#352f27}
+.trial-thanks__icon{display:flex;align-items:center;justify-content:center;width:64px;height:64px;margin:auto;border-radius:50%;background:#f4efe6;color:#967341}
+.trial-thanks__instructions{margin:28px 0 20px;background:#faf8f4;border:1px solid #eee6d8;border-radius:12px;padding:20px;text-align:left}
+.trial-thanks .trial-thanks__deadline{font-size:13px}
+.trial-thanks__button{display:inline-flex;justify-content:center;align-items:center;gap:10px;min-height:48px;margin-top:16px;padding:12px 22px;background:#957748;color:white;border:0;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer}
+.trial-thanks__button:hover{background:#80643a}
+.trial-thanks__secondary{display:block;width:fit-content;max-width:100%;margin:16px auto 0;padding:12px 4px;color:#79603c;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+.trial-thanks a:focus-visible,.trial-thanks button:focus-visible{outline:3px solid #b18c51;outline-offset:4px}
+.trial-thanks__spinner{animation:trial-spin 1s linear infinite}
+@keyframes trial-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.trial-thanks__spinner{animation:none}}
+@media(max-width:480px){.trial-thanks{padding:16px 12px 32px}.trial-thanks__body{padding:28px 20px}.trial-thanks__header{padding:12px 20px}.trial-thanks h1{font-size:24px}.trial-thanks__instructions{padding:16px}.trial-thanks__button{width:100%}}
+

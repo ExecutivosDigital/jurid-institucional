@@ -5,6 +5,7 @@ import Script from "next/script";
 import ErudaProvider from "./ErudaProvider";
 import "./globals.css";
 import { Providers } from "./providers";
+import { AcquisitionCapture } from "lib/acquisition-capture";
 import {
   AnalyticsProviders,
   RouteViewTracker,
@@ -36,12 +37,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
+        {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_ANALYTICS_ENABLED !== "false" && <>
         <Script id="clarity-script" strategy="afterInteractive">
           {`(function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -61,14 +63,16 @@ export default function RootLayout({
           data-lp="institucional"
           data-key="pk_lp_institucional_8fb70d6d4c88"
         />
+        </>}
       </head>
       <body
         className={`${karla.variable} ${inter.variable} bg-n-1 dark:bg-n-6 font-sans text-[1rem] leading-6 -tracking-[.01em] text-n-7 antialiased md:bg-n-1 dark:text-n-1 dark:md:bg-primary-100`}
       >
         <ErudaProvider />
-        <RouteViewTracker />
+        <AcquisitionCapture />
+        {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_ANALYTICS_ENABLED !== "false" && <RouteViewTracker />}
         <Providers>{children}</Providers>
-        <AnalyticsProviders />
+        {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_ANALYTICS_ENABLED !== "false" && <AnalyticsProviders />}
       </body>
     </html>
   );
